@@ -471,9 +471,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods logistic_regression"
-LABEL org.opencontainers.image.created="2024-09-02T19:54:33Z"
-LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_template"
-LABEL org.opencontainers.image.revision="b0878996ae33bbc642b9c692bd10da0faccd8179"
+LABEL org.opencontainers.image.created="2024-09-02T19:59:19Z"
+LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
+LABEL org.opencontainers.image.revision="f91ead49a066e4cebe63b2cab5eb568c214bf156"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -732,7 +732,7 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
 
   # determine docker image id
   if [[ "$VIASH_ENGINE_ID" == 'docker' ]]; then
-    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_template/methods/logistic_regression:build_main'
+    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/label_projection/methods/logistic_regression:build_main'
   fi
 
   # print dockerfile
