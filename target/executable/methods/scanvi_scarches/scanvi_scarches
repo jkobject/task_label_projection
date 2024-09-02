@@ -499,9 +499,9 @@ RUN pip install --upgrade pip && \
 RUN pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scanvi_scarches"
-LABEL org.opencontainers.image.created="2024-09-02T21:25:23Z"
+LABEL org.opencontainers.image.created="2024-09-02T21:34:01Z"
 LABEL org.opencontainers.image.source="https://github.com/scverse/scvi-tools"
-LABEL org.opencontainers.image.revision="27fc29aba20d05455481a209e80a6cd063ee63b8"
+LABEL org.opencontainers.image.revision="d2ed35e34bf48e217d8d131ded4ffbff01051d74"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -815,7 +815,7 @@ if [[ "$VIASH_ENGINE_TYPE" == "docker" ]]; then
 
   # determine docker image id
   if [[ "$VIASH_ENGINE_ID" == 'docker' ]]; then
-    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/label_projection/methods/scanvi_scarches:build_main'
+    VIASH_DOCKER_IMAGE_ID='ghcr.io/openproblems-bio/task_label_projection/methods/scanvi_scarches:build_main'
   fi
 
   # print dockerfile

@@ -66,9 +66,20 @@ dependencies:
     repository: openproblems-v2
   - name: common/extract_metadata
     repository: openproblems-v2
+  - name: control_methods/majority_vote
+  - name: control_methods/random_labels
   - name: control_methods/true_labels
+  - name: methods/knn
   - name: methods/logistic_regression
+  - name: methods/mlp
+  - name: methods/naive_bayes
+  - name: methods/scanvi
+  - name: methods/scanvi_scarches
+  - name: methods/seurat_transferdata
+  - name: methods/xgboost
   - name: metrics/accuracy
+  - name: metrics/f1
+
 
 runners:
   - type: nextflow

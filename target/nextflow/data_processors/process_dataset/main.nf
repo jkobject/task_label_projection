@@ -3362,11 +3362,11 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "27fc29aba20d05455481a209e80a6cd063ee63b8",
+    "git_commit" : "d2ed35e34bf48e217d8d131ded4ffbff01051d74",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
-    "name" : "label_projection",
+    "name" : "task_label_projection",
     "version" : "build_main",
     "label" : "Label projection",
     "summary" : "Automated cell type annotation from rich, labeled reference data",
@@ -3920,7 +3920,7 @@ meta["defaults"] = [
   directives: readJsonBlob('''{
   "container" : {
     "registry" : "ghcr.io",
-    "image" : "openproblems-bio/label_projection/data_processors/process_dataset",
+    "image" : "openproblems-bio/task_label_projection/data_processors/process_dataset",
     "tag" : "build_main"
   },
   "label" : [

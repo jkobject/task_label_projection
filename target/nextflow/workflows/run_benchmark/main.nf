@@ -3206,7 +3206,25 @@ meta = [
       }
     },
     {
+      "name" : "control_methods/majority_vote",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "control_methods/random_labels",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "control_methods/true_labels",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/knn",
       "repository" : {
         "type" : "local"
       }
@@ -3218,7 +3236,49 @@ meta = [
       }
     },
     {
+      "name" : "methods/mlp",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/naive_bayes",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/scanvi",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/scanvi_scarches",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/seurat_transferdata",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/xgboost",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/accuracy",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "metrics/f1",
       "repository" : {
         "type" : "local"
       }
@@ -3280,11 +3340,11 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "27fc29aba20d05455481a209e80a6cd063ee63b8",
+    "git_commit" : "d2ed35e34bf48e217d8d131ded4ffbff01051d74",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
-    "name" : "label_projection",
+    "name" : "task_label_projection",
     "version" : "build_main",
     "label" : "Label projection",
     "summary" : "Automated cell type annotation from rich, labeled reference data",
@@ -3370,35 +3430,53 @@ meta = [
 meta["root_dir"] = getRootDir()
 include { check_dataset_schema } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/check_dataset_schema/main.nf"
 include { extract_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/extract_metadata/main.nf"
+include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
+include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"
+include { knn } from "${meta.resources_dir}/../../../nextflow/methods/knn/main.nf"
 include { logistic_regression } from "${meta.resources_dir}/../../../nextflow/methods/logistic_regression/main.nf"
+include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.nf"
+include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/naive_bayes/main.nf"
+include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
+include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
+include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
+include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
 include { accuracy } from "${meta.resources_dir}/../../../nextflow/metrics/accuracy/main.nf"
+include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
 workflow auto {
-  findStatesTemp(params, meta.config)
+  findStates(params, meta.config)
     | meta.workflow.run(
       auto: [publish: "state"]
     )
 }
+
+methods = [
+  majority_vote,
+  random_labels,
+  true_labels,
+  knn,
+  logistic_regression,
+  mlp,
+  naive_bayes,
+  scanvi,
+  scanvi_scarches,
+  seurat_transferdata,
+  xgboost
+]
+
+metrics = [
+  accuracy,
+  f1
+]
 
 workflow run_wf {
   take:
   input_ch
 
   main:
-
-  // construct list of methods
-  methods = [
-    true_labels,
-    logistic_regression
-  ]
-
-  // construct list of metrics
-  metrics = [
-    accuracy
-  ]
 
   /****************************
    * EXTRACT DATASET METADATA *
@@ -3569,123 +3647,6 @@ workflow run_wf {
 
   emit:
   output_ch
-}
-
-// temp fix for rename_keys typo
-
-def findStatesTemp(Map params, Map config) {
-  def auto_config = deepClone(config)
-  def auto_params = deepClone(params)
-
-  auto_config = auto_config.clone()
-  // override arguments
-  auto_config.argument_groups = []
-  auto_config.arguments = [
-    [
-      type: "string",
-      name: "--id",
-      description: "A dummy identifier",
-      required: false
-    ],
-    [
-      type: "file",
-      name: "--input_states",
-      example: "/path/to/input/directory/**/state.yaml",
-      description: "Path to input directory containing the datasets to be integrated.",
-      required: true,
-      multiple: true,
-      multiple_sep: ";"
-    ],
-    [
-      type: "string",
-      name: "--filter",
-      example: "foo/.*/state.yaml",
-      description: "Regex to filter state files by path.",
-      required: false
-    ],
-    // to do: make this a yaml blob?
-    [
-      type: "string",
-      name: "--rename_keys",
-      example: ["newKey1:oldKey1", "newKey2:oldKey2"],
-      description: "Rename keys in the detected input files. This is useful if the input files do not match the set of input arguments of the workflow.",
-      required: false,
-      multiple: true,
-      multiple_sep: ";"
-    ],
-    [
-      type: "string",
-      name: "--settings",
-      example: '{"output_dataset": "dataset.h5ad", "k": 10}',
-      description: "Global arguments as a JSON glob to be passed to all components.",
-      required: false
-    ]
-  ]
-  if (!(auto_params.containsKey("id"))) {
-    auto_params["id"] = "auto"
-  }
-
-  // run auto config through processConfig once more
-  auto_config = processConfig(auto_config)
-
-  workflow findStatesTempWf {
-    helpMessage(auto_config)
-
-    output_ch = 
-      channelFromParams(auto_params, auto_config)
-        | flatMap { autoId, args ->
-
-          def globalSettings = args.settings ? readYamlBlob(args.settings) : [:]
-
-          // look for state files in input dir
-          def stateFiles = args.input_states
-
-          // filter state files by regex
-          if (args.filter) {
-            stateFiles = stateFiles.findAll{ stateFile ->
-              def stateFileStr = stateFile.toString()
-              def matcher = stateFileStr =~ args.filter
-              matcher.matches()}
-          }
-
-          // read in states
-          def states = stateFiles.collect { stateFile ->
-            def state_ = readTaggedYaml(stateFile)
-            [state_.id, state_]
-          }
-
-          // construct renameMap
-          if (args.rename_keys) {
-            def renameMap = args.rename_keys.collectEntries{renameString ->
-              def split = renameString.split(":")
-              assert split.size() == 2: "Argument 'rename_keys' should be of the form 'newKey:oldKey;newKey:oldKey'"
-              split
-            }
-
-            // rename keys in state, only let states through which have all keys
-            // also add global settings
-            states = states.collectMany{id, state ->
-              def newState = [:]
-
-              for (key in renameMap.keySet()) {
-                def origKey = renameMap[key]
-                if (!(state.containsKey(origKey))) {
-                  return []
-                }
-                newState[key] = state[origKey]
-              }
-
-              [[id, globalSettings + newState]]
-            }
-          }
-
-          states
-        }
-    emit:
-    output_ch
-  }
-
-  return findStatesTempWf
 }
 
 // inner workflow hook
