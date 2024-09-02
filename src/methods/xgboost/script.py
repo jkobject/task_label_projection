@@ -1,3 +1,4 @@
+import pandas as pd
 import anndata as ad
 import xgboost as xgb
 
@@ -8,7 +9,7 @@ par = {
     'output': 'output.h5ad'
 }
 meta = {
-    'functionality_name': 'foo',
+    'name': 'foo'
 }
 ## VIASH END
 
@@ -32,8 +33,20 @@ xgb_op = xgb.train(param, xg_train, evals=watchlist)
 
 print("Predict on test data", flush=True)
 pred = xgb_op.predict(xg_test).astype(int)
-input_test.obs["label_pred"] = categories[pred]
+label_pred = categories[pred]
 
-print("Write output to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par['output'], compression="gzip")
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
+
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")

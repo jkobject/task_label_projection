@@ -1,3 +1,4 @@
+import pandas as pd
 import anndata as ad
 
 ## VIASH START
@@ -18,8 +19,20 @@ input_test = ad.read_h5ad(par['input_test'])
 input_solution = ad.read_h5ad(par['input_solution'])
 
 print("Create prediction object", flush=True)
-input_test.obs["label_pred"] = input_solution.obs["label"]
+label_pred = input_solution.obs["label"]
 
-print("Write output to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par["output"], compression="gzip")
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
+
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")

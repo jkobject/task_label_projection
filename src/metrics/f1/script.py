@@ -35,9 +35,17 @@ metric_value = [ f1_score(
         average=x
     ) for x in metric_type ]
 
-print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = metric_id
-input_prediction.uns["metric_values"] = metric_value
+print("Create output data", flush=True)
+output = ad.AnnData(
+    uns={
+        "dataset_id": input_solution.uns["dataset_id"],
+        "normalization_id": input_solution.uns["normalization_id"],
+        "method_id": input_prediction.uns["method_id"],
+        "metric_ids": metric_id,
+        "metric_values": metric_value
+    }
+)
 
-print("Writing adata to file", flush=True)
-input_prediction.write_h5ad(par['output'], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
+

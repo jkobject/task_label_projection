@@ -1,5 +1,5 @@
 import anndata as ad
-import numpy as np
+import pandas as pd
 import scvi
 
 ## VIASH START
@@ -52,10 +52,21 @@ query_model = scvi.model.SCANVI.load_query_data(input_test, model)
 train_kwargs = dict(max_epochs=par["max_epochs"], early_stopping=True)
 query_model.train(plan_kwargs=dict(weight_decay=0.0), **train_kwargs)
 
-print("Generate predictions", flush=True)
-input_test.obs["label"] = "Unknown"
-input_test.obs["label_pred"] = query_model.predict(input_test)
+print("Predict on test data", flush=True)
+label_pred = query_model.predict(input_test)
 
-print("Write output AnnData to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par["output"], compression="gzip")
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
+
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
