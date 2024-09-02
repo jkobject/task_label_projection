@@ -40,5 +40,5 @@ viash run src/metrics/accuracy/config.vsh.yaml -- \
 
 # only run this if you have access to the openproblems-data bucket
 aws s3 sync --profile op \
-  "$DATASET_DIR" s3://openproblems-data/resources/task_label_projection \
+  "$DATASET_DIR" s3://openproblems-data/resources_test/task_label_projection \
   --delete --dryrun
