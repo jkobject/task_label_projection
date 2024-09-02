@@ -9,7 +9,7 @@ par = {
     'output': 'output.h5ad'
 }
 meta = {
-    'functionality_name': 'accuracy'
+    'name': 'accuracy'
 }
 ## VIASH END
 

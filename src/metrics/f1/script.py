@@ -10,7 +10,7 @@ par = {
     'output': 'output.h5ad'
 }
 meta = {
-    'functionality_name': 'f1'
+    'name': 'f1'
 }
 ## VIASH END
 

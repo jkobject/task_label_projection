@@ -13,7 +13,7 @@ par = {
     "dropout_rate": 0.2,
     "max_epochs": 200,
 }
-meta = {"functionality_name": "scanvi_xgboost"}
+meta = {"name": "scanvi_xgboost"}
 ## VIASH END
 
 print("Reading input files", flush=True)
