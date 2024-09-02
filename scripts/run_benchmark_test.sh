@@ -16,4 +16,4 @@ tw launch https://github.com/openproblems-bio/task_label_projection.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
-  --labels task_label_projection,test
+  --labels label_projection,test

@@ -474,9 +474,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn" "jsonschema"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods knn"
-LABEL org.opencontainers.image.created="2024-09-02T22:16:52Z"
+LABEL org.opencontainers.image.created="2024-09-02T22:31:12Z"
 LABEL org.opencontainers.image.source="https://github.com/scikit-learn/scikit-learn"
-LABEL org.opencontainers.image.revision="de9fe31d3d29518e7b6c3d5d97ac0c8701a41fd3"
+LABEL org.opencontainers.image.revision="791ec3a0923885fe439be2534ea58990e5240ff4"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
