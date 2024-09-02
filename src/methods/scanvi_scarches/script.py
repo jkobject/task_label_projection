@@ -4,8 +4,8 @@ import scvi
 
 ## VIASH START
 par = {
-    "input_train": "resources_test/label_projection/pancreas/train.h5ad",
-    "input_test": "resources_test/label_projection/pancreas/test.h5ad",
+    "input_train": "resources_test/task_label_projection/pancreas/train.h5ad",
+    "input_test": "resources_test/task_label_projection/pancreas/test.h5ad",
     "output": "output.h5ad",
     "n_latent": 30,
     "n_layers": 2,
@@ -13,7 +13,7 @@ par = {
     "dropout_rate": 0.2,
     "max_epochs": 200,
 }
-meta = {"functionality_name": "scanvi_xgboost"}
+meta = {"name": "scanvi_xgboost"}
 ## VIASH END
 
 print("Reading input files", flush=True)

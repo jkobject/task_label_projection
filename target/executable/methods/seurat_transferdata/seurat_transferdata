@@ -184,15 +184,15 @@ function ViashHelp {
   echo "Arguments:"
   echo "    --input_train"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/label_projection/pancreas/train.h5ad"
+  echo "        example: resources_test/task_label_projection/pancreas/train.h5ad"
   echo ""
   echo "    --input_test"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/label_projection/pancreas/test.h5ad"
+  echo "        example: resources_test/task_label_projection/pancreas/test.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
-  echo "        example: resources_test/label_projection/pancreas/prediction.h5ad"
+  echo "        example: resources_test/task_label_projection/pancreas/prediction.h5ad"
 }
 
 # initialise variables
@@ -474,9 +474,9 @@ RUN Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packag
   Rscript -e 'remotes::install_cran(c("Matrix>=1.5.3", "Seurat", "rlang"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods seurat_transferdata"
-LABEL org.opencontainers.image.created="2024-09-02T21:34:02Z"
+LABEL org.opencontainers.image.created="2024-09-02T22:16:52Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="d2ed35e34bf48e217d8d131ded4ffbff01051d74"
+LABEL org.opencontainers.image.revision="de9fe31d3d29518e7b6c3d5d97ac0c8701a41fd3"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

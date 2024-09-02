@@ -7,13 +7,13 @@ import pandas as pd
 
 ## VIASH START
 par = {
-    'input_train': 'resources_test/label_projection/pancreas/train.h5ad',
-    'input_test': 'resources_test/label_projection/pancreas/test.h5ad',
+    'input_train': 'resources_test/task_label_projection/pancreas/train.h5ad',
+    'input_test': 'resources_test/task_label_projection/pancreas/test.h5ad',
     'output': 'output.h5ad',
     'num_hvg': 2000
 }
 meta = {
-    'functionality_name': 'scanvi'
+    'name': 'scanvi'
 }
 ## VIASH END
 
@@ -70,7 +70,7 @@ output = ad.AnnData(
     uns={
         "dataset_id": input_test.uns["dataset_id"],
         "normalization_id": input_test.uns["normalization_id"],
-        "method_id": meta["functionality_name"],
+        "method_id": meta["name"],
     },
 )
 

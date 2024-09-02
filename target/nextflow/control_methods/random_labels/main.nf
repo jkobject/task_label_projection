@@ -2880,7 +2880,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/train.h5ad"
+            "resources_test/task_label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2958,7 +2958,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/test.h5ad"
+            "resources_test/task_label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3078,7 +3078,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/solution.h5ad"
+            "resources_test/task_label_projection/pancreas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3126,7 +3126,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/prediction.h5ad"
+            "resources_test/task_label_projection/pancreas/prediction.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3151,8 +3151,8 @@ meta = [
   "test_resources" : [
     {
       "type" : "file",
-      "path" : "/resources_test/label_projection/pancreas",
-      "dest" : "resources_test/label_projection/pancreas"
+      "path" : "/resources_test/task_label_projection/pancreas",
+      "dest" : "resources_test/task_label_projection/pancreas"
     },
     {
       "type" : "python_script",
@@ -3185,6 +3185,13 @@ meta = [
       "name" : "openproblems-v2",
       "repo" : "openproblems-bio/openproblems-v2",
       "tag" : "main_build"
+    },
+    {
+      "type" : "github",
+      "name" : "core",
+      "repo" : "openproblems-bio/core",
+      "tag" : "build/add_common_components",
+      "path" : "viash/core"
     }
   ],
   "license" : "MIT",
@@ -3257,7 +3264,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/random_labels",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "d2ed35e34bf48e217d8d131ded4ffbff01051d74",
+    "git_commit" : "de9fe31d3d29518e7b6c3d5d97ac0c8701a41fd3",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3276,8 +3283,8 @@ meta = [
         },
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/label_projection/",
-          "dest" : "resources_test/label_projection"
+          "path" : "s3://openproblems-data/resources_test/task_label_projection/",
+          "dest" : "resources_test/task_label_projection"
         }
       ]
     },
@@ -3287,6 +3294,13 @@ meta = [
         "name" : "openproblems-v2",
         "repo" : "openproblems-bio/openproblems-v2",
         "tag" : "main_build"
+      },
+      {
+        "type" : "github",
+        "name" : "core",
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     ],
     "viash_version" : "0.9.0-RC7",

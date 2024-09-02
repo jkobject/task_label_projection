@@ -55,8 +55,8 @@ info:
       path: s3://openproblems-data/resources_test/common/pancreas/
       dest: resources_test/common/pancreas
     - type: s3
-      path: s3://openproblems-data/resources_test/label_projection/
-      dest: resources_test/label_projection
+      path: s3://openproblems-data/resources_test/task_label_projection/
+      dest: resources_test/task_label_projection
 authors:
   - name: "Nikolay Markov"
     roles: [author, maintainer]
@@ -79,3 +79,9 @@ repositories:
     type: github
     repo: openproblems-bio/openproblems-v2
     tag: main_build
+  - name: core
+    type: github
+    repo: openproblems-bio/core
+    # tag: build/main
+    tag: build/add_common_components
+    path: viash/core

@@ -2880,7 +2880,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/train.h5ad"
+            "resources_test/task_label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2958,7 +2958,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/test.h5ad"
+            "resources_test/task_label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3078,7 +3078,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/solution.h5ad"
+            "resources_test/task_label_projection/pancreas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3190,19 +3190,21 @@ meta = [
   "status" : "enabled",
   "dependencies" : [
     {
-      "name" : "common/check_dataset_schema",
+      "name" : "schema/verify_data_structure",
       "repository" : {
         "type" : "github",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     },
     {
-      "name" : "common/extract_metadata",
+      "name" : "h5ad/extract_uns_metadata",
       "repository" : {
         "type" : "github",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     },
     {
@@ -3290,6 +3292,13 @@ meta = [
       "name" : "openproblems-v2",
       "repo" : "openproblems-bio/openproblems-v2",
       "tag" : "main_build"
+    },
+    {
+      "type" : "github",
+      "name" : "core",
+      "repo" : "openproblems-bio/core",
+      "tag" : "build/add_common_components",
+      "path" : "viash/core"
     }
   ],
   "license" : "MIT",
@@ -3340,7 +3349,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "d2ed35e34bf48e217d8d131ded4ffbff01051d74",
+    "git_commit" : "de9fe31d3d29518e7b6c3d5d97ac0c8701a41fd3",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3359,8 +3368,8 @@ meta = [
         },
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/label_projection/",
-          "dest" : "resources_test/label_projection"
+          "path" : "s3://openproblems-data/resources_test/task_label_projection/",
+          "dest" : "resources_test/task_label_projection"
         }
       ]
     },
@@ -3370,6 +3379,13 @@ meta = [
         "name" : "openproblems-v2",
         "repo" : "openproblems-bio/openproblems-v2",
         "tag" : "main_build"
+      },
+      {
+        "type" : "github",
+        "name" : "core",
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     ],
     "viash_version" : "0.9.0-RC7",
@@ -3428,8 +3444,8 @@ meta = [
 
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
-include { check_dataset_schema } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/check_dataset_schema/main.nf"
-include { extract_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/extract_metadata/main.nf"
+include { verify_data_structure } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/schema/verify_data_structure/main.nf"
+include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata/main.nf"
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"
@@ -3488,7 +3504,7 @@ workflow run_wf {
     }
 
     // extract the dataset metadata
-    | extract_metadata.run(
+    | extract_uns_metadata.run(
       fromState: [input: "input_solution"],
       toState: { id, output, state ->
         state + [
@@ -3593,7 +3609,7 @@ workflow run_wf {
   output_ch = score_ch
 
     // extract the scores
-    | extract_metadata.run(
+    | extract_uns_metadata.run(
       key: "extract_scores",
       fromState: [input: "metric_output"],
       toState: { id, output, state ->

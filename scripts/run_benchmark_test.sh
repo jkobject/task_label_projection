@@ -1,13 +1,13 @@
 #!/bin/bash
 
 cat > /tmp/params.yaml << 'HERE'
-input_states: s3://openproblems-data/resources_test/task_template/**/state.yaml
+input_states: s3://openproblems-data/resources_test/task_label_projection/**/state.yaml
 rename_keys: 'input_train:output_train;input_test:output_test'
 output_state: "state.yaml"
-publish_dir: s3://openproblems-nextflow/temp/task_template/
+publish_dir: s3://openproblems-nextflow/temp/task_label_projection/
 HERE
 
-tw launch https://github.com/openproblems-bio/task_template.git \
+tw launch https://github.com/openproblems-bio/task_label_projection.git \
   --revision build/main \
   --pull-latest \
   --main-script target/nextflow/workflows/run_benchmark/main.nf \
@@ -16,4 +16,4 @@ tw launch https://github.com/openproblems-bio/task_template.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
-  --labels task_template,test
+  --labels task_label_projection,test

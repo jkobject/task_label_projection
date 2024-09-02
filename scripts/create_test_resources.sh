@@ -9,7 +9,7 @@ cd "$REPO_ROOT"
 set -e
 
 RAW_DATA=resources_test/common
-DATASET_DIR=resources_test/task_template
+DATASET_DIR=resources_test/task_label_projection
 
 mkdir -p $DATASET_DIR
 
@@ -18,21 +18,27 @@ echo Running process_dataset
 nextflow run . \
   -main-script target/nextflow/workflows/process_datasets/main.nf \
   -profile docker \
-  -entry auto \
-  --input_states "$RAW_DATA/**/state.yaml" \
-  --rename_keys 'input:output_dataset' \
-  --settings '{"output_train": "$id/train.h5ad", "output_test": "$id/test.h5ad"}' \
   --publish_dir "$DATASET_DIR" \
+  --id "pancreas" \
+  --input "$RAW_DATA/pancreas/dataset.h5ad" \
+  --output_train '$id/train.h5ad' \
+  --output_test '$id/test.h5ad' \
+  --output_solution '$id/solution.h5ad' \
   --output_state '$id/state.yaml'
 
 # run one method
-viash run src/methods/logistic_regression/config.vsh.yaml -- \
+viash run src/methods/knn/config.vsh.yaml -- \
     --input_train $DATASET_DIR/pancreas/train.h5ad \
     --input_test $DATASET_DIR/pancreas/test.h5ad \
-    --output $DATASET_DIR/pancreas/denoised.h5ad
+    --output $DATASET_DIR/pancreas/prediction.h5ad
 
 # run one metric
 viash run src/metrics/accuracy/config.vsh.yaml -- \
-    --input_predicition $DATASET_DIR/pancreas/predicted.h5ad \
+    --input_prediction $DATASET_DIR/pancreas/prediction.h5ad \
     --input_solution $DATASET_DIR/pancreas/solution.h5ad \
     --output $DATASET_DIR/pancreas/score.h5ad
+
+# only run this if you have access to the openproblems-data bucket
+aws s3 sync --profile op \
+  "$DATASET_DIR" s3://openproblems-data/resources/task_label_projection \
+  --delete --dryrun

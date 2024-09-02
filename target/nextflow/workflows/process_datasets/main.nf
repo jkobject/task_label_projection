@@ -3000,7 +3000,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/train.h5ad"
+            "resources_test/task_label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3078,7 +3078,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/test.h5ad"
+            "resources_test/task_label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3198,7 +3198,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/label_projection/pancreas/solution.h5ad"
+            "resources_test/task_label_projection/pancreas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3233,19 +3233,21 @@ meta = [
   "status" : "enabled",
   "dependencies" : [
     {
-      "name" : "common/check_dataset_schema",
+      "name" : "schema/verify_data_structure",
       "repository" : {
         "type" : "github",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     },
     {
-      "name" : "common/extract_metadata",
+      "name" : "h5ad/extract_uns_metadata",
       "repository" : {
         "type" : "github",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     },
     {
@@ -3261,6 +3263,13 @@ meta = [
       "name" : "openproblems-v2",
       "repo" : "openproblems-bio/openproblems-v2",
       "tag" : "main_build"
+    },
+    {
+      "type" : "github",
+      "name" : "core",
+      "repo" : "openproblems-bio/core",
+      "tag" : "build/add_common_components",
+      "path" : "viash/core"
     }
   ],
   "license" : "MIT",
@@ -3311,7 +3320,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "d2ed35e34bf48e217d8d131ded4ffbff01051d74",
+    "git_commit" : "de9fe31d3d29518e7b6c3d5d97ac0c8701a41fd3",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3330,8 +3339,8 @@ meta = [
         },
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/label_projection/",
-          "dest" : "resources_test/label_projection"
+          "path" : "s3://openproblems-data/resources_test/task_label_projection/",
+          "dest" : "resources_test/task_label_projection"
         }
       ]
     },
@@ -3341,6 +3350,13 @@ meta = [
         "name" : "openproblems-v2",
         "repo" : "openproblems-bio/openproblems-v2",
         "tag" : "main_build"
+      },
+      {
+        "type" : "github",
+        "name" : "core",
+        "repo" : "openproblems-bio/core",
+        "tag" : "build/add_common_components",
+        "path" : "viash/core"
       }
     ],
     "viash_version" : "0.9.0-RC7",
@@ -3399,8 +3415,8 @@ meta = [
 
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
-include { check_dataset_schema } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/check_dataset_schema/main.nf"
-include { extract_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems-v2/main_build/nextflow/common/extract_metadata/main.nf"
+include { verify_data_structure } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/schema/verify_data_structure/main.nf"
+include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata/main.nf"
 include { process_dataset } from "${meta.resources_dir}/../../../nextflow/data_processors/process_dataset/main.nf"
 
 // inner workflow
@@ -3408,7 +3424,7 @@ include { process_dataset } from "${meta.resources_dir}/../../../nextflow/data_p
 include { findArgumentSchema } from "${meta.resources_dir}/helper.nf"
 
 workflow auto {
-  findStatesTemp(params, meta.config)
+  findStates(params, meta.config)
     | meta.workflow.run(
       auto: [publish: "state"]
     )
@@ -3421,7 +3437,7 @@ workflow run_wf {
   main:
   output_ch = input_ch
 
-    | check_dataset_schema.run(
+    | verify_data_structure.run(
       fromState: { id, state ->
         def schema = findArgumentSchema(meta.config, "input")
         def schemaYaml = tempFile("schema.yaml")
@@ -3459,124 +3475,6 @@ workflow run_wf {
 
   emit:
   output_ch
-}
-
-
-// temp fix for rename_keys typo
-
-def findStatesTemp(Map params, Map config) {
-  def auto_config = deepClone(config)
-  def auto_params = deepClone(params)
-
-  auto_config = auto_config.clone()
-  // override arguments
-  auto_config.argument_groups = []
-  auto_config.arguments = [
-    [
-      type: "string",
-      name: "--id",
-      description: "A dummy identifier",
-      required: false
-    ],
-    [
-      type: "file",
-      name: "--input_states",
-      example: "/path/to/input/directory/**/state.yaml",
-      description: "Path to input directory containing the datasets to be integrated.",
-      required: true,
-      multiple: true,
-      multiple_sep: ";"
-    ],
-    [
-      type: "string",
-      name: "--filter",
-      example: "foo/.*/state.yaml",
-      description: "Regex to filter state files by path.",
-      required: false
-    ],
-    // to do: make this a yaml blob?
-    [
-      type: "string",
-      name: "--rename_keys",
-      example: ["newKey1:oldKey1", "newKey2:oldKey2"],
-      description: "Rename keys in the detected input files. This is useful if the input files do not match the set of input arguments of the workflow.",
-      required: false,
-      multiple: true,
-      multiple_sep: ";"
-    ],
-    [
-      type: "string",
-      name: "--settings",
-      example: '{"output_dataset": "dataset.h5ad", "k": 10}',
-      description: "Global arguments as a JSON glob to be passed to all components.",
-      required: false
-    ]
-  ]
-  if (!(auto_params.containsKey("id"))) {
-    auto_params["id"] = "auto"
-  }
-
-  // run auto config through processConfig once more
-  auto_config = processConfig(auto_config)
-
-  workflow findStatesTempWf {
-    helpMessage(auto_config)
-
-    output_ch = 
-      channelFromParams(auto_params, auto_config)
-        | flatMap { autoId, args ->
-
-          def globalSettings = args.settings ? readYamlBlob(args.settings) : [:]
-
-          // look for state files in input dir
-          def stateFiles = args.input_states
-
-          // filter state files by regex
-          if (args.filter) {
-            stateFiles = stateFiles.findAll{ stateFile ->
-              def stateFileStr = stateFile.toString()
-              def matcher = stateFileStr =~ args.filter
-              matcher.matches()}
-          }
-
-          // read in states
-          def states = stateFiles.collect { stateFile ->
-            def state_ = readTaggedYaml(stateFile)
-            [state_.id, state_]
-          }
-
-          // construct renameMap
-          if (args.rename_keys) {
-            def renameMap = args.rename_keys.collectEntries{renameString ->
-              def split = renameString.split(":")
-              assert split.size() == 2: "Argument 'rename_keys' should be of the form 'newKey:oldKey;newKey:oldKey'"
-              split
-            }
-
-            // rename keys in state, only let states through which have all keys
-            // also add global settings
-            states = states.collectMany{id, state ->
-              def newState = [:]
-
-              for (key in renameMap.keySet()) {
-                def origKey = renameMap[key]
-                if (!(state.containsKey(origKey))) {
-                  return []
-                }
-                newState[key] = state[origKey]
-              }
-
-              [[id, globalSettings + newState]]
-            }
-          }
-
-          states
-        }
-    emit:
-    output_ch
-  }
-
-  return findStatesTempWf
 }
 
 // inner workflow hook
