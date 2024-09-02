@@ -1,6 +1,6 @@
-import yaml
 import re
 from typing import Dict, List, Union
+import openproblems
 
 ## VIASH START
 meta = {
@@ -46,22 +46,6 @@ def check_url(url: str) -> bool:
         return True
     else:
         return False
-
-def load_config(config_path: str) -> Dict:
-    with open(config_path, "r") as file:
-        config = yaml.safe_load(file)
-
-    def process_argument(argument: dict) -> dict:
-        argument["clean_name"] = argument["name"].lstrip("-")
-        return argument
-
-    config["all_arguments"] = [
-        process_argument(arg)
-        for arg_grp in config["argument_groups"]
-        for arg in arg_grp["arguments"]
-    ]
-
-    return config
 
 def check_references(references: Dict[str, Union[str, List[str]]]) -> None:
     doi = references.get("doi")
@@ -127,7 +111,7 @@ def check_info(this_info: Dict, this_config: Dict, comp_type: str) -> None:
 
 ## UNIT TEST CHECKS
 print("Load config data", flush=True)
-config = load_config(meta["config"])
+config = openproblems.project.read_viash_config(meta["config"])
 info = config.get("info", {})
 comp_type = info.get("type")
 
@@ -155,7 +139,7 @@ if "preferred_normalization" in info:
 
 if "variants" in info:
     print("Checking contents of .info.variants", flush=True)
-    arg_names = [arg["name"] for arg in config["all_arguments"]] + ["preferred_normalization"]
+    arg_names = [arg["clean_name"] for arg in config["all_arguments"]] + ["preferred_normalization"]
 
     for paramset_id, paramset in info["variants"].items():
         if paramset:
