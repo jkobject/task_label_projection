@@ -2,7 +2,7 @@ import sys
 import random
 import numpy as np
 import anndata as ad
-import openproblems as op
+import openproblems
 
 ## VIASH START
 par = {
@@ -16,16 +16,14 @@ par = {
     'output_solution': 'solution.h5ad'
 }
 meta = {
-    'resources_dir': 'target/executable/data_processors/process_dataset',
-    'config': 'target/executable/data_processors/process_dataset/.config.vsh.yaml'
+    'resources_dir': 'src/tasks/label_projection/process_dataset',
+    'config': 'src/tasks/label_projection/process_dataset/.config.vsh.yaml'
 }
 ## VIASH END
 
 # import helper functions
 sys.path.append(meta['resources_dir'])
 from subset_h5ad_by_format import subset_h5ad_by_format
-
-config = op.project.read_viash_config(meta["config"])
 
 # set seed if need be
 if par["seed"]:
@@ -35,6 +33,9 @@ if par["seed"]:
 print(">> Load data", flush=True)
 adata = ad.read_h5ad(par["input"])
 print("input:", adata)
+
+print(">> Load config", flush=True)
+config = openproblems.project.read_viash_config(meta["config"])
 
 print(f">> Process data using {par['method']} method")
 if par["method"] == "batch":
@@ -49,7 +50,7 @@ elif par["method"] == "random":
 # subset the different adatas
 print(">> Figuring which data needs to be copied to which output file", flush=True)
 # use par arguments to look for label and batch value in different slots
-slot_mapping = {
+field_rename_dict = {
     "obs": {
         "label": par["obs_label"],
         "batch": par["obs_batch"],
@@ -58,10 +59,10 @@ slot_mapping = {
 
 print(">> Creating train data", flush=True)
 output_train = subset_h5ad_by_format(
-    adata[[not x for x in is_test]],
+    adata[[not x for x in is_test]], 
     config,
     "output_train",
-    slot_mapping
+    field_rename_dict
 )
 
 print(">> Creating test data", flush=True)
@@ -69,7 +70,7 @@ output_test = subset_h5ad_by_format(
     adata[is_test],
     config,
     "output_test",
-    slot_mapping
+    field_rename_dict
 )
 
 print(">> Creating solution data", flush=True)
@@ -77,7 +78,7 @@ output_solution = subset_h5ad_by_format(
     adata[is_test],
     config,
     "output_solution",
-    slot_mapping
+    field_rename_dict
 )
 
 print(">> Writing data", flush=True)

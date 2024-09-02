@@ -1,8 +1,7 @@
-#TODO: Change to the required and/or optional fields of the anndata
 type: file
-example: resources/score.h5ad
-label: Score
-summary: "File indicating the score of a metric."
+example: "resources_test/label_projection/pancreas/score.h5ad"
+label: "Score"
+summary: "Metric score file"
 info:
   format:
     type: h5ad

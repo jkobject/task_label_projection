@@ -53,7 +53,7 @@ info:
   test_resources:
     - type: s3
       path: s3://openproblems-data/resources_test/common/pancreas/
-      dest: resources_test/pancreas
+      dest: resources_test/common/pancreas
     - type: s3
       path: s3://openproblems-data/resources_test/label_projection/
       dest: resources_test/label_projection

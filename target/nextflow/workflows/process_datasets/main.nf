@@ -2803,7 +2803,7 @@ meta = [
   "version" : "build_main",
   "argument_groups" : [
     {
-      "name" : "Inputs",
+      "name" : "Arguments",
       "arguments" : [
         {
           "type" : "file",
@@ -2924,17 +2924,12 @@ meta = [
           "direction" : "input",
           "multiple" : false,
           "multiple_sep" : ";"
-        }
-      ]
-    },
-    {
-      "name" : "Outputs",
-      "arguments" : [
+        },
         {
           "type" : "file",
           "name" : "--output_train",
           "label" : "Training data",
-          "summary" : "The training data in h5ad format",
+          "summary" : "The training data",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3005,7 +3000,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/train.h5ad"
+            "resources_test/label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3018,7 +3013,7 @@ meta = [
           "type" : "file",
           "name" : "--output_test",
           "label" : "Test data",
-          "summary" : "The subset of molecules used for the test dataset",
+          "summary" : "The test data (without labels)",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3083,7 +3078,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/test.h5ad"
+            "resources_test/label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3203,7 +3198,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/solution.h5ad"
+            "resources_test/label_projection/pancreas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3227,6 +3222,14 @@ meta = [
       "path" : "/common/nextflow_helpers/helper.nf"
     }
   ],
+  "info" : {
+    "type" : "process_dataset",
+    "type_info" : {
+      "label" : "Data processor",
+      "summary" : "A label projection dataset processor.",
+      "description" : "A component for processing a Common Dataset into a task-specific dataset.\n"
+    }
+  },
   "status" : "enabled",
   "dependencies" : [
     {
@@ -3308,7 +3311,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "f91ead49a066e4cebe63b2cab5eb568c214bf156",
+    "git_commit" : "d5db6fd6f72ddf6706f8f74d9b0f6bec86f70d75",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3323,7 +3326,7 @@ meta = [
         {
           "type" : "s3",
           "path" : "s3://openproblems-data/resources_test/common/pancreas/",
-          "dest" : "resources_test/pancreas"
+          "dest" : "resources_test/common/pancreas"
         },
         {
           "type" : "s3",

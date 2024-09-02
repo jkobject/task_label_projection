@@ -2809,7 +2809,7 @@ meta = [
           "type" : "file",
           "name" : "--input_train",
           "label" : "Training data",
-          "summary" : "The training data in h5ad format",
+          "summary" : "The training data",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2880,7 +2880,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/train.h5ad"
+            "resources_test/label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2893,7 +2893,7 @@ meta = [
           "type" : "file",
           "name" : "--input_test",
           "label" : "Test data",
-          "summary" : "The subset of molecules used for the test dataset",
+          "summary" : "The test data (without labels)",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2958,7 +2958,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/test.h5ad"
+            "resources_test/label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2970,8 +2970,8 @@ meta = [
         {
           "type" : "file",
           "name" : "--output",
-          "label" : "Predicted data",
-          "summary" : "A predicted dataset as output by a method.",
+          "label" : "Prediction",
+          "summary" : "The prediction file",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3006,7 +3006,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/prediction.h5ad"
+            "resources_test/label_projection/pancreas/prediction.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3030,9 +3030,9 @@ meta = [
   "description" : "Logistic Regression estimates parameters of a logistic function for\nmultivariate classification tasks. Here, we use 100-dimensional whitened PCA\ncoordinates as independent variables, and the model minimises the cross\nentropy loss over all cell type classes.\n",
   "test_resources" : [
     {
-      "type" : "python_script",
-      "path" : "/common/component_tests/run_and_check_output.py",
-      "is_executable" : true
+      "type" : "file",
+      "path" : "/resources_test/label_projection/pancreas",
+      "dest" : "resources_test/label_projection/pancreas"
     },
     {
       "type" : "python_script",
@@ -3040,20 +3040,27 @@ meta = [
       "is_executable" : true
     },
     {
-      "type" : "file",
-      "path" : "/resources_test/task_template/pancreas",
-      "dest" : "resources_test/task_template/pancreas"
+      "type" : "python_script",
+      "path" : "/common/component_tests/run_and_check_output.py",
+      "is_executable" : true
     }
   ],
   "info" : {
+    "v1" : {
+      "path" : "openproblems/tasks/label_projection/methods/logistic_regression.py",
+      "commit" : "b3456fd73c04c28516f6df34c57e6e3e8b0dab32"
+    },
     "preferred_normalization" : "log_cp10k",
-    "documentation_url" : "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
-    "repository_url" : "https://github.com/scikit-learn/scikit-learn",
+    "variants" : {
+      "logistic_regression_scran" : {
+        "preferred_normalization" : "log_scran_pooling"
+      }
+    },
     "type" : "method",
     "type_info" : {
       "label" : "Method",
-      "summary" : "A method.",
-      "description" : "A method to predict the task effects.\n"
+      "summary" : "A label projection method.",
+      "description" : "A label projection method to predict the labels of a new \\"test\\"\ndataset based on an annotated \\"training\\" dataset.\n"
     }
   },
   "status" : "enabled",
@@ -3072,8 +3079,9 @@ meta = [
     ]
   },
   "links" : {
-    "repository" : "https://github.com/openproblems-bio/task_label_projection",
-    "docker_registry" : "ghcr.io"
+    "repository" : "https://github.com/scikit-learn/scikit-learn",
+    "docker_registry" : "ghcr.io",
+    "documentation" : "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html"
   },
   "runners" : [
     {
@@ -3140,7 +3148,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/logistic_regression",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "f91ead49a066e4cebe63b2cab5eb568c214bf156",
+    "git_commit" : "d5db6fd6f72ddf6706f8f74d9b0f6bec86f70d75",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3155,7 +3163,7 @@ meta = [
         {
           "type" : "s3",
           "path" : "s3://openproblems-data/resources_test/common/pancreas/",
-          "dest" : "resources_test/pancreas"
+          "dest" : "resources_test/common/pancreas"
         },
         {
           "type" : "s3",
@@ -3271,36 +3279,20 @@ dep = {
 
 ## VIASH END
 
-print('Reading input files', flush=True)
+print("Load input data", flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
-print('Preprocess data', flush=True)
-# ... preprocessing ...
-
-print('Train model', flush=True)
-# ... train model ...
+print("Fit to train data", flush=True)
 classifier = sklearn.linear_model.LogisticRegression()
 classifier.fit(input_train.obsm["X_pca"], input_train.obs["label"].astype(str))
 
-print('Generate predictions', flush=True)
-# ... generate predictions ...
-obs_label_pred = classifier.predict(input_test.obsm["X_pca"])
+print("Predict on test data", flush=True)
+input_test.obs["label_pred"] = classifier.predict(input_test.obsm["X_pca"])
 
-print("Write output AnnData to file", flush=True)
-output = ad.AnnData(
-  uns={
-    'dataset_id': input_train.uns['dataset_id'],
-    'normalization_id': input_train.uns['normalization_id'],
-    'method_id': meta['name']
-  },
-  obs={
-    'label_pred': obs_label_pred
-  }
-)
-output.obs_names = input_test.obs_names
-
-output.write_h5ad(par['output'], compression='gzip')
+print("Write output to file", flush=True)
+input_test.uns["method_id"] = meta["functionality_name"]
+input_test.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

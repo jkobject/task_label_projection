@@ -179,19 +179,19 @@ function ViashHelp {
   echo "Arguments:"
   echo "    --input_train"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/task_template/pancreas/train.h5ad"
+  echo "        example: resources_test/label_projection/pancreas/train.h5ad"
   echo ""
   echo "    --input_test"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/task_template/pancreas/test.h5ad"
+  echo "        example: resources_test/label_projection/pancreas/test.h5ad"
   echo ""
   echo "    --input_solution"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/task_template/pancreas/solution.h5ad"
+  echo "        example: resources_test/label_projection/pancreas/solution.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
-  echo "        example: resources_test/task_template/pancreas/prediction.h5ad"
+  echo "        example: resources_test/label_projection/pancreas/prediction.h5ad"
 }
 
 # initialise variables
@@ -470,9 +470,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods true_labels"
-LABEL org.opencontainers.image.created="2024-09-02T19:59:19Z"
+LABEL org.opencontainers.image.created="2024-09-02T20:32:46Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="f91ead49a066e4cebe63b2cab5eb568c214bf156"
+LABEL org.opencontainers.image.revision="d5db6fd6f72ddf6706f8f74d9b0f6bec86f70d75"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1083,35 +1083,17 @@ dep = {
 
 ## VIASH END
 
-print('Reading input files', flush=True)
-input_train = ad.read_h5ad(par['input_train'])
+print("Load data", flush=True)
+# input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 input_solution = ad.read_h5ad(par['input_solution'])
 
-print('Preprocess data', flush=True)
-# ... preprocessing ...
+print("Create prediction object", flush=True)
+input_test.obs["label_pred"] = input_solution.obs["label"]
 
-print('Train model', flush=True)
-# ... train model ...
-
-print('Generate predictions', flush=True)
-# ... generate predictions ...
-obs_label_pred = input_solution.obs["label"]
-
-print("Write output AnnData to file", flush=True)
-output = ad.AnnData(
-  uns={
-    'dataset_id': input_train.uns['dataset_id'],
-    'normalization_id': input_train.uns['normalization_id'],
-    'method_id': meta['name']
-  },
-  obs={
-    'label_pred': obs_label_pred
-  }
-)
-output.obs_names = input_test.obs_names
-
-output.write_h5ad(par['output'], compression='gzip')
+print("Write output to file", flush=True)
+input_test.uns["method_id"] = meta["functionality_name"]
+input_test.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"

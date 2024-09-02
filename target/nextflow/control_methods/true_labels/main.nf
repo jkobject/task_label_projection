@@ -2809,7 +2809,7 @@ meta = [
           "type" : "file",
           "name" : "--input_train",
           "label" : "Training data",
-          "summary" : "The training data in h5ad format",
+          "summary" : "The training data",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2880,7 +2880,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/train.h5ad"
+            "resources_test/label_projection/pancreas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2893,7 +2893,7 @@ meta = [
           "type" : "file",
           "name" : "--input_test",
           "label" : "Test data",
-          "summary" : "The subset of molecules used for the test dataset",
+          "summary" : "The test data (without labels)",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -2958,7 +2958,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/test.h5ad"
+            "resources_test/label_projection/pancreas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3078,7 +3078,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/solution.h5ad"
+            "resources_test/label_projection/pancreas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3090,8 +3090,8 @@ meta = [
         {
           "type" : "file",
           "name" : "--output",
-          "label" : "Predicted data",
-          "summary" : "A predicted dataset as output by a method.",
+          "label" : "Prediction",
+          "summary" : "The prediction file",
           "info" : {
             "format" : {
               "type" : "h5ad",
@@ -3126,7 +3126,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_template/pancreas/prediction.h5ad"
+            "resources_test/label_projection/pancreas/prediction.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3145,14 +3145,14 @@ meta = [
       "is_executable" : true
     }
   ],
-  "label" : "True Labels",
+  "label" : "True labels",
   "summary" : "a positive control, solution labels are copied 1 to 1 to the predicted data.",
-  "description" : "A positive control, where the solution labels are copied 1 to 1 to the predicted data.\n",
+  "description" : "A positive control, where the solution labels are copied 1 to 1 to the predicted data.",
   "test_resources" : [
     {
-      "type" : "python_script",
-      "path" : "/common/component_tests/run_and_check_output.py",
-      "is_executable" : true
+      "type" : "file",
+      "path" : "/resources_test/label_projection/pancreas",
+      "dest" : "resources_test/label_projection/pancreas"
     },
     {
       "type" : "python_script",
@@ -3160,18 +3160,22 @@ meta = [
       "is_executable" : true
     },
     {
-      "type" : "file",
-      "path" : "/resources_test/task_template/pancreas",
-      "dest" : "resources_test/task_template/pancreas"
+      "type" : "python_script",
+      "path" : "/common/component_tests/run_and_check_output.py",
+      "is_executable" : true
     }
   ],
   "info" : {
+    "v1" : {
+      "path" : "openproblems/tasks/label_projection/methods/baseline.py",
+      "commit" : "b3456fd73c04c28516f6df34c57e6e3e8b0dab32"
+    },
     "preferred_normalization" : "counts",
     "type" : "control_method",
     "type_info" : {
-      "label" : "Control Method",
+      "label" : "Control method",
       "summary" : "Quality control methods for verifying the pipeline.",
-      "description" : "This folder contains control components for the task. \nThese components have the same interface as the regular methods\nbut also receive the solution object as input. It serves as a\nstarting point to test the relative accuracy of new methods in\nthe task, and also as a quality control for the metrics defined\nin the task.\n"
+      "description" : "This folder contains control components for the task. \nThese components have the same interface as the regular methods\nbut also receive the solution object as input. It serves as a\nstarting point to test the relative accuracy of new methods in\nthe task, and also as a quality control for the metrics defined\nin the task. \n"
     }
   },
   "status" : "enabled",
@@ -3243,7 +3247,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/true_labels",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "f91ead49a066e4cebe63b2cab5eb568c214bf156",
+    "git_commit" : "d5db6fd6f72ddf6706f8f74d9b0f6bec86f70d75",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3258,7 +3262,7 @@ meta = [
         {
           "type" : "s3",
           "path" : "s3://openproblems-data/resources_test/common/pancreas/",
-          "dest" : "resources_test/pancreas"
+          "dest" : "resources_test/common/pancreas"
         },
         {
           "type" : "s3",
@@ -3374,35 +3378,17 @@ dep = {
 
 ## VIASH END
 
-print('Reading input files', flush=True)
-input_train = ad.read_h5ad(par['input_train'])
+print("Load data", flush=True)
+# input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 input_solution = ad.read_h5ad(par['input_solution'])
 
-print('Preprocess data', flush=True)
-# ... preprocessing ...
+print("Create prediction object", flush=True)
+input_test.obs["label_pred"] = input_solution.obs["label"]
 
-print('Train model', flush=True)
-# ... train model ...
-
-print('Generate predictions', flush=True)
-# ... generate predictions ...
-obs_label_pred = input_solution.obs["label"]
-
-print("Write output AnnData to file", flush=True)
-output = ad.AnnData(
-  uns={
-    'dataset_id': input_train.uns['dataset_id'],
-    'normalization_id': input_train.uns['normalization_id'],
-    'method_id': meta['name']
-  },
-  obs={
-    'label_pred': obs_label_pred
-  }
-)
-output.obs_names = input_test.obs_names
-
-output.write_h5ad(par['output'], compression='gzip')
+print("Write output to file", flush=True)
+input_test.uns["method_id"] = meta["functionality_name"]
+input_test.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''
