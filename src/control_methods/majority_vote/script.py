@@ -4,7 +4,6 @@ import anndata as ad
 par = {
     'input_train': 'resources_test/label_projection/pancreas/train.h5ad',
     'input_test': 'resources_test/label_projection/pancreas/test.h5ad',
-    'input_solution': 'resources_test/label_projection/pancreas/test.h5ad',
     'output': 'output.h5ad'
 }
 meta = {
@@ -13,12 +12,14 @@ meta = {
 ## VIASH END
 
 print("Load data", flush=True)
-# input_train = ad.read_h5ad(par['input_train'])
+input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
-input_solution = ad.read_h5ad(par['input_solution'])
+
+print("Compute majority vote", flush=True)
+majority = input_train.obs.label.value_counts().index[0]
 
 print("Create prediction object", flush=True)
-input_test.obs["label_pred"] = input_solution.obs["label"]
+input_test.obs["label_pred"] = majority
 
 print("Write output to file", flush=True)
 input_test.uns["method_id"] = meta["functionality_name"]

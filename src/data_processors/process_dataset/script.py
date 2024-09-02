@@ -2,7 +2,6 @@ import sys
 import random
 import numpy as np
 import anndata as ad
-import openproblems as op
 
 ## VIASH START
 par = {
@@ -16,16 +15,14 @@ par = {
     'output_solution': 'solution.h5ad'
 }
 meta = {
-    'resources_dir': 'target/executable/data_processors/process_dataset',
-    'config': 'target/executable/data_processors/process_dataset/.config.vsh.yaml'
+    'resources_dir': 'src/tasks/label_projection/process_dataset',
+    'config': 'src/tasks/label_projection/process_dataset/.config.vsh.yaml'
 }
 ## VIASH END
 
 # import helper functions
 sys.path.append(meta['resources_dir'])
-from subset_h5ad_by_format import subset_h5ad_by_format
-
-config = op.project.read_viash_config(meta["config"])
+from subset_anndata import read_config_slots_info, subset_anndata
 
 # set seed if need be
 if par["seed"]:
@@ -55,29 +52,24 @@ slot_mapping = {
         "batch": par["obs_batch"],
     }
 }
+slot_info = read_config_slots_info(meta["config"], slot_mapping)
 
 print(">> Creating train data", flush=True)
-output_train = subset_h5ad_by_format(
-    adata[[not x for x in is_test]],
-    config,
-    "output_train",
-    slot_mapping
+output_train = subset_anndata(
+    adata[[not x for x in is_test]], 
+    slot_info["output_train"]
 )
 
 print(">> Creating test data", flush=True)
-output_test = subset_h5ad_by_format(
+output_test = subset_anndata(
     adata[is_test],
-    config,
-    "output_test",
-    slot_mapping
+    slot_info["output_test"]
 )
 
 print(">> Creating solution data", flush=True)
-output_solution = subset_h5ad_by_format(
+output_solution = subset_anndata(
     adata[is_test],
-    config,
-    "output_solution",
-    slot_mapping
+    slot_info['output_solution']
 )
 
 print(">> Writing data", flush=True)

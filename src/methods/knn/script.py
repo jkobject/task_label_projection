@@ -1,5 +1,5 @@
 import anndata as ad
-import sklearn.linear_model
+import sklearn.neighbors
 
 ## VIASH START
 par = {
@@ -17,7 +17,7 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 print("Fit to train data", flush=True)
-classifier = sklearn.linear_model.LogisticRegression()
+classifier = sklearn.neighbors.KNeighborsClassifier()
 classifier.fit(input_train.obsm["X_pca"], input_train.obs["label"].astype(str))
 
 print("Predict on test data", flush=True)

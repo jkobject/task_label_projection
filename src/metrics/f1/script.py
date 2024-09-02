@@ -1,4 +1,4 @@
-import numpy as np
+from sklearn.metrics import f1_score
 import sklearn.preprocessing
 import anndata as ad
 
@@ -6,10 +6,11 @@ import anndata as ad
 par = {
     'input_prediction': 'resources_test/label_projection/pancreas/knn.h5ad',
     'input_solution': 'resources_test/label_projection/pancreas/solution.h5ad',
+    'average': 'weighted',
     'output': 'output.h5ad'
 }
 meta = {
-    'functionality_name': 'accuracy'
+    'functionality_name': 'f1'
 }
 ## VIASH END
 
@@ -25,12 +26,18 @@ encoder = sklearn.preprocessing.LabelEncoder().fit(cats)
 input_solution.obs["label"] = encoder.transform(input_solution.obs["label"])
 input_prediction.obs["label_pred"] = encoder.transform(input_prediction.obs["label_pred"])
 
-print("Compute prediction accuracy", flush=True)
-accuracy = np.mean(input_solution.obs["label"] == input_prediction.obs["label_pred"])
+print("Compute F1 score", flush=True)
+metric_type = [ "macro", "micro", "weighted" ]
+metric_id = [ "f1_" + x for x in metric_type]
+metric_value = [ f1_score(
+        input_solution.obs["label"], 
+        input_prediction.obs["label_pred"], 
+        average=x
+    ) for x in metric_type ]
 
 print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = "accuracy"
-input_prediction.uns["metric_values"] = accuracy
+input_prediction.uns["metric_ids"] = metric_id
+input_prediction.uns["metric_values"] = metric_value
 
 print("Writing adata to file", flush=True)
 input_prediction.write_h5ad(par['output'], compression="gzip")

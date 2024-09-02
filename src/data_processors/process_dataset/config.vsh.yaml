@@ -1,5 +1,6 @@
-__merge__: /src/api/comp_data_processor.yaml
+__merge__: /src/api/comp_process_dataset.yaml
 name: process_dataset
+namespace: data_processors
 arguments:
   - name: "--method"
     type: "string"
@@ -21,14 +22,17 @@ arguments:
 resources:
   - type: python_script
     path: script.py
-  - path: /common/helper_functions/subset_h5ad_by_format.py
-
+  - path: /src/common/helper_functions/subset_anndata.py
+test_resources:
+  - path: /resources_test/label_projection/pancreas
+    dest: resources_test/label_projection/pancreas
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py
 engines:
   - type: docker
     image: openproblems/base_python:1.0.0
-
 runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [highmem, midcpu, midtime]
+      label: [highmem, midcpu , midtime]

@@ -1,5 +1,5 @@
 import anndata as ad
-import sklearn.linear_model
+from sklearn.neural_network import MLPClassifier
 
 ## VIASH START
 par = {
@@ -17,7 +17,10 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 print("Fit to train data", flush=True)
-classifier = sklearn.linear_model.LogisticRegression()
+classifier = MLPClassifier(
+    max_iter=par["max_iter"], 
+    hidden_layer_sizes=tuple(par["hidden_layer_sizes"])
+)
 classifier.fit(input_train.obsm["X_pca"], input_train.obs["label"].astype(str))
 
 print("Predict on test data", flush=True)
