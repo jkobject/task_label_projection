@@ -466,9 +466,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics accuracy"
-LABEL org.opencontainers.image.created="2024-09-02T20:55:12Z"
+LABEL org.opencontainers.image.created="2024-09-02T21:18:59Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="b5b64c231eca0f32745e36534bddbc3b3172ba7d"
+LABEL org.opencontainers.image.revision="3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1072,12 +1072,19 @@ input_prediction.obs["label_pred"] = encoder.transform(input_prediction.obs["lab
 print("Compute prediction accuracy", flush=True)
 accuracy = np.mean(input_solution.obs["label"] == input_prediction.obs["label_pred"])
 
-print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = "accuracy"
-input_prediction.uns["metric_values"] = accuracy
+print("Create output data", flush=True)
+output = ad.AnnData(
+    uns={
+        "dataset_id": input_solution.uns["dataset_id"],
+        "normalization_id": input_solution.uns["normalization_id"],
+        "method_id": input_prediction.uns["method_id"],
+        "metric_ids": "accuracy",
+        "metric_values": accuracy
+    }
+)
 
-print("Writing adata to file", flush=True)
-input_prediction.write_h5ad(par['output'], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"

@@ -1,4 +1,5 @@
 import anndata as ad
+import pandas as pd
 
 ## VIASH START
 par = {
@@ -16,11 +17,20 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 print("Compute majority vote", flush=True)
-majority = input_train.obs.label.value_counts().index[0]
+label_pred = input_train.obs.label.value_counts().index[0]
 
-print("Create prediction object", flush=True)
-input_test.obs["label_pred"] = majority
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
 
-print("Write output to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par["output"], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")

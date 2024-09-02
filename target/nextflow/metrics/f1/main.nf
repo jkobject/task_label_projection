@@ -3191,7 +3191,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/f1",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "b5b64c231eca0f32745e36534bddbc3b3172ba7d",
+    "git_commit" : "3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3344,12 +3344,19 @@ metric_value = [ f1_score(
         average=x
     ) for x in metric_type ]
 
-print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = metric_id
-input_prediction.uns["metric_values"] = metric_value
+print("Create output data", flush=True)
+output = ad.AnnData(
+    uns={
+        "dataset_id": input_solution.uns["dataset_id"],
+        "normalization_id": input_solution.uns["normalization_id"],
+        "method_id": input_prediction.uns["method_id"],
+        "metric_ids": metric_id,
+        "metric_values": metric_value
+    }
+)
 
-print("Writing adata to file", flush=True)
-input_prediction.write_h5ad(par['output'], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

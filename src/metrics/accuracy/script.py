@@ -28,9 +28,17 @@ input_prediction.obs["label_pred"] = encoder.transform(input_prediction.obs["lab
 print("Compute prediction accuracy", flush=True)
 accuracy = np.mean(input_solution.obs["label"] == input_prediction.obs["label_pred"])
 
-print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = "accuracy"
-input_prediction.uns["metric_values"] = accuracy
+print("Create output data", flush=True)
+output = ad.AnnData(
+    uns={
+        "dataset_id": input_solution.uns["dataset_id"],
+        "normalization_id": input_solution.uns["normalization_id"],
+        "method_id": input_prediction.uns["method_id"],
+        "metric_ids": "accuracy",
+        "metric_values": accuracy
+    }
+)
 
-print("Writing adata to file", flush=True)
-input_prediction.write_h5ad(par['output'], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
+

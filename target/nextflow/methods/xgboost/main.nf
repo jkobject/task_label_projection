@@ -3148,7 +3148,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/xgboost",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "b5b64c231eca0f32745e36534bddbc3b3172ba7d",
+    "git_commit" : "3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3243,6 +3243,7 @@ def innerWorkflowFactory(args) {
   def rawScript = '''set -e
 tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
+import pandas as pd
 import anndata as ad
 import xgboost as xgb
 
@@ -3299,11 +3300,23 @@ xgb_op = xgb.train(param, xg_train, evals=watchlist)
 
 print("Predict on test data", flush=True)
 pred = xgb_op.predict(xg_test).astype(int)
-input_test.obs["label_pred"] = categories[pred]
+label_pred = categories[pred]
 
-print("Write output to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par['output'], compression="gzip")
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
+
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''

@@ -466,9 +466,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component metrics f1"
-LABEL org.opencontainers.image.created="2024-09-02T20:55:11Z"
+LABEL org.opencontainers.image.created="2024-09-02T21:18:59Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="b5b64c231eca0f32745e36534bddbc3b3172ba7d"
+LABEL org.opencontainers.image.revision="3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1078,12 +1078,19 @@ metric_value = [ f1_score(
         average=x
     ) for x in metric_type ]
 
-print("Store metric value", flush=True)
-input_prediction.uns["metric_ids"] = metric_id
-input_prediction.uns["metric_values"] = metric_value
+print("Create output data", flush=True)
+output = ad.AnnData(
+    uns={
+        "dataset_id": input_solution.uns["dataset_id"],
+        "normalization_id": input_solution.uns["normalization_id"],
+        "method_id": input_prediction.uns["method_id"],
+        "metric_ids": metric_id,
+        "metric_values": metric_value
+    }
+)
 
-print("Writing adata to file", flush=True)
-input_prediction.write_h5ad(par['output'], compression="gzip")
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"

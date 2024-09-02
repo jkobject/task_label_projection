@@ -3144,7 +3144,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/seurat_transferdata",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "b5b64c231eca0f32745e36534bddbc3b3172ba7d",
+    "git_commit" : "3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3292,11 +3292,6 @@ cat(">> Load input data\\\\n")
 input_train <- read_h5ad(par\\$input_train)
 input_test <- read_h5ad(par\\$input_test)
 
-# sce_train <- zellkonverter::readH5AD(par\\$input_train)
-# obj_train <- Seurat::as.Seurat(sce_train, data = "normalized")
-# sce_test <- zellkonverter::readH5AD(par\\$input_test)
-# obj_test <- Seurat::as.Seurat(sce_test, data = "normalized")
-
 cat(">> Converting AnnData to Seurat\\\\n")
 anndataToSeurat <- function(adata) {
   # interpreted from https://github.com/satijalab/seurat/blob/v3.1.0/R/objects.R
@@ -3305,7 +3300,7 @@ anndataToSeurat <- function(adata) {
       counts = as(Matrix::t(adata\\$layers[["counts"]]), "CsparseMatrix")
     ) %>%
     SeuratObject::SetAssayData(
-      slot = "data",
+      layer = "data",
       new.data = as(Matrix::t(adata\\$layers[["normalized"]]), "CsparseMatrix")
     ) %>%
     SeuratObject::AddMetaData(
@@ -3317,8 +3312,10 @@ anndataToSeurat <- function(adata) {
 
   # set embedding
   # could add loadings and stdev
+  X_pca <- adata\\$obsm[["X_pca"]]
+  dimnames(X_pca) <- list(rownames(adata), paste0("PC_", seq_len(ncol(X_pca))))
   embed <- SeuratObject::CreateDimReducObject(
-    embeddings = adata\\$obsm[["X_pca"]],
+    embeddings = X_pca,
     key = "PC_"
   )
   obj[["pca"]] <- embed
@@ -3348,11 +3345,23 @@ query <- Seurat::TransferData(
   refdata = list(labels = "label"),
   verbose = FALSE
 )
-input_test\\$obs[["label_pred"]] <- query\\$predicted.labels[input_test\\$obs_names]
+
+cat(">> Create output data\\\\n")
+output <- anndata::AnnData(
+  obs = data.frame(
+    row.names = input_test\\$obs_names,
+    label_pred = query\\$predicted.labels
+  ),
+  uns = list(
+    method_id = meta\\$name,
+    dataset_id = input_test\\$uns[["dataset_id"]],
+    normalization_id = input_test\\$uns[["normalization_id"]]
+  ),
+  shape = c(input_test\\$n_obs, 0L)
+)
 
 cat(">> Write output to file\\\\n")
-input_test\\$uns[["method_id"]] <- meta[["functionality_name"]]
-input_test\\$write_h5ad(par\\$output, compression = "gzip")
+output\\$write_h5ad(par\\$output, compression = "gzip")
 VIASHMAIN
 Rscript "$tempscript"
 '''

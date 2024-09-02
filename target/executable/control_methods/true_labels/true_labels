@@ -470,9 +470,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods true_labels"
-LABEL org.opencontainers.image.created="2024-09-02T20:55:10Z"
+LABEL org.opencontainers.image.created="2024-09-02T21:18:58Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="b5b64c231eca0f32745e36534bddbc3b3172ba7d"
+LABEL org.opencontainers.image.revision="3aa0dff2c0fa4c3639a14dc4a5321d541ff89c59"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1047,6 +1047,7 @@ function interrupt {
 trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
+import pandas as pd
 import anndata as ad
 
 ## VIASH START
@@ -1089,11 +1090,23 @@ input_test = ad.read_h5ad(par['input_test'])
 input_solution = ad.read_h5ad(par['input_solution'])
 
 print("Create prediction object", flush=True)
-input_test.obs["label_pred"] = input_solution.obs["label"]
+label_pred = input_solution.obs["label"]
 
-print("Write output to file", flush=True)
-input_test.uns["method_id"] = meta["functionality_name"]
-input_test.write_h5ad(par["output"], compression="gzip")
+print("Create output data", flush=True)
+output = ad.AnnData(
+    obs=pd.DataFrame(
+        { 'label_pred': label_pred },
+        index=input_test.obs.index
+    ),
+    uns={
+        'method_id': meta['name'],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"]
+    }
+)
+
+print("Write output data", flush=True)
+output.write_h5ad(par['output'], compression="gzip")
 VIASHMAIN
 python -B "\$tempscript" &
 wait "\$!"
