@@ -2,6 +2,7 @@ import sys
 import random
 import numpy as np
 import anndata as ad
+import openproblems
 
 ## VIASH START
 par = {
@@ -22,7 +23,7 @@ meta = {
 
 # import helper functions
 sys.path.append(meta['resources_dir'])
-from subset_anndata import read_config_slots_info, subset_anndata
+from subset_h5ad_by_format import subset_h5ad_by_format
 
 # set seed if need be
 if par["seed"]:
@@ -32,6 +33,9 @@ if par["seed"]:
 print(">> Load data", flush=True)
 adata = ad.read_h5ad(par["input"])
 print("input:", adata)
+
+print(">> Load config", flush=True)
+config = openproblems.project.read_viash_config(meta["config"])
 
 print(f">> Process data using {par['method']} method")
 if par["method"] == "batch":
@@ -46,30 +50,35 @@ elif par["method"] == "random":
 # subset the different adatas
 print(">> Figuring which data needs to be copied to which output file", flush=True)
 # use par arguments to look for label and batch value in different slots
-slot_mapping = {
+field_rename_dict = {
     "obs": {
         "label": par["obs_label"],
         "batch": par["obs_batch"],
     }
 }
-slot_info = read_config_slots_info(meta["config"], slot_mapping)
 
 print(">> Creating train data", flush=True)
-output_train = subset_anndata(
+output_train = subset_h5ad_by_format(
     adata[[not x for x in is_test]], 
-    slot_info["output_train"]
+    config,
+    "output_train",
+    field_rename_dict
 )
 
 print(">> Creating test data", flush=True)
-output_test = subset_anndata(
+output_test = subset_h5ad_by_format(
     adata[is_test],
-    slot_info["output_test"]
+    config,
+    "output_test",
+    field_rename_dict
 )
 
 print(">> Creating solution data", flush=True)
-output_solution = subset_anndata(
+output_solution = subset_h5ad_by_format(
     adata[is_test],
-    slot_info['output_solution']
+    config,
+    "output_solution",
+    field_rename_dict
 )
 
 print(">> Writing data", flush=True)

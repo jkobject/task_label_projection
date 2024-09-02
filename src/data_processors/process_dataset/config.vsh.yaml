@@ -22,10 +22,10 @@ arguments:
 resources:
   - type: python_script
     path: script.py
-  - path: /src/common/helper_functions/subset_anndata.py
+  - path: /common/helper_functions/subset_h5ad_by_format.py
 test_resources:
-  - path: /resources_test/label_projection/pancreas
-    dest: resources_test/label_projection/pancreas
+  - path: /resources_test/common/pancreas
+    dest: resources_test/common/pancreas
   - type: python_script
     path: /common/component_tests/run_and_check_output.py
 engines:
@@ -35,4 +35,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [highmem, midcpu , midtime]
+      label: [highmem, midcpu, midtime]
