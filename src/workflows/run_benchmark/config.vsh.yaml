@@ -62,10 +62,10 @@ resources:
     path: /_viash.yaml
 
 dependencies:
-  - name: common/check_dataset_schema
-    repository: openproblems-v2
-  - name: common/extract_metadata
-    repository: openproblems-v2
+  - name: schema/verify_data_structure
+    repository: core
+  - name: h5ad/extract_uns_metadata
+    repository: core
   - name: control_methods/majority_vote
   - name: control_methods/random_labels
   - name: control_methods/true_labels
