@@ -4,8 +4,8 @@ import anndata as ad
 
 ## VIASH START
 par = {
-    'input_prediction': 'resources_test/label_projection/pancreas/knn.h5ad',
-    'input_solution': 'resources_test/label_projection/pancreas/solution.h5ad',
+    'input_prediction': 'resources_test/task_label_projection/pancreas/knn.h5ad',
+    'input_solution': 'resources_test/task_label_projection/pancreas/solution.h5ad',
     'average': 'weighted',
     'output': 'output.h5ad'
 }

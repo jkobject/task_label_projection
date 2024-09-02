@@ -1,10 +1,11 @@
 #!/bin/bash
 
 cat > /tmp/params.yaml << 'HERE'
-input_states: s3://openproblems-data/resources_test/task_label_projection/**/state.yaml
-rename_keys: 'input_train:output_train;input_test:output_test'
+input_states: s3://openproblems-data/resources/datasets/**/state.yaml
+rename_keys: 'input:output_dataset'
 output_state: "state.yaml"
-publish_dir: s3://openproblems-nextflow/temp/task_label_projection/
+settings: '{"output_train": "$id/train.h5ad", "output_test": "$id/test.h5ad"}'
+publish_dir: s3://openproblems-data/resources/task_label_projection/datasets/
 HERE
 
 tw launch https://github.com/openproblems-bio/task_label_projection.git \
@@ -16,4 +17,4 @@ tw launch https://github.com/openproblems-bio/task_label_projection.git \
   --params-file /tmp/params.yaml \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
-  --labels task_label_projection,test
+  --labels task_label_projection,create_resources

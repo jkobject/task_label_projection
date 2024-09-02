@@ -140,7 +140,8 @@ Arguments:
 
 The solution for the test data
 
-Example file: `resources_test/label_projection/pancreas/solution.h5ad`
+Example file:
+`resources_test/task_label_projection/pancreas/solution.h5ad`
 
 Format:
 
@@ -183,7 +184,7 @@ Data structure:
 
 The test data (without labels)
 
-Example file: `resources_test/label_projection/pancreas/test.h5ad`
+Example file: `resources_test/task_label_projection/pancreas/test.h5ad`
 
 Format:
 
@@ -219,7 +220,7 @@ Data structure:
 
 The training data
 
-Example file: `resources_test/label_projection/pancreas/train.h5ad`
+Example file: `resources_test/task_label_projection/pancreas/train.h5ad`
 
 Format:
 
@@ -305,7 +306,8 @@ Arguments:
 
 The prediction file
 
-Example file: `resources_test/label_projection/pancreas/prediction.h5ad`
+Example file:
+`resources_test/task_label_projection/pancreas/prediction.h5ad`
 
 Format:
 
@@ -334,7 +336,7 @@ Data structure:
 
 Metric score file
 
-Example file: `resources_test/label_projection/pancreas/score.h5ad`
+Example file: `resources_test/task_label_projection/pancreas/score.h5ad`
 
 Format:
 

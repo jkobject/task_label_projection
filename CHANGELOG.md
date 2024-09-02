@@ -1,4 +1,4 @@
-# task_template x.y.z
+# task_label_projection x.y.z
 
 ## BREAKING CHANGES
 
