@@ -62,8 +62,6 @@ resources:
     path: /_viash.yaml
 
 dependencies:
-  - name: schema/verify_data_structure
-    repository: core
   - name: h5ad/extract_uns_metadata
     repository: core
   - name: control_methods/majority_vote

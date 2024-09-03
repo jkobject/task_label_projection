@@ -21,3 +21,9 @@ tw launch https://github.com/openproblems-bio/task_label_projection.git \
   --entry-name auto \
   --config common/nextflow_helpers/labels_tw.config \
   --labels task_label_projection,full
+
+# sync
+aws s3 sync \
+  s3://openproblems-data/resources/task_label_projection/results/ \
+  resources/results/ \
+  --delete --dryrun
