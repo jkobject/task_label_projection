@@ -3155,7 +3155,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/logistic_regression",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "791ec3a0923885fe439be2534ea58990e5240ff4",
+    "git_commit" : "115c158ae0f8986e925b465d587208997a09c1bf",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
