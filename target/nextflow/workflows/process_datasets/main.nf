@@ -3242,15 +3242,6 @@ meta = [
       }
     },
     {
-      "name" : "h5ad/extract_uns_metadata",
-      "repository" : {
-        "type" : "github",
-        "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
-        "path" : "viash/core"
-      }
-    },
-    {
       "name" : "data_processors/process_dataset",
       "repository" : {
         "type" : "local"
@@ -3320,7 +3311,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "2d85a7ba1b429134f081dc69a058174a801b544e",
+    "git_commit" : "944328a100074213f848663f38893c2ab7d92899",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3416,7 +3407,6 @@ meta = [
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
 include { verify_data_structure } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/schema/verify_data_structure/main.nf"
-include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata/main.nf"
 include { process_dataset } from "${meta.resources_dir}/../../../nextflow/data_processors/process_dataset/main.nf"
 
 // inner workflow

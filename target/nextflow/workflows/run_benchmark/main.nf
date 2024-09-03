@@ -3190,15 +3190,6 @@ meta = [
   "status" : "enabled",
   "dependencies" : [
     {
-      "name" : "schema/verify_data_structure",
-      "repository" : {
-        "type" : "github",
-        "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
-        "path" : "viash/core"
-      }
-    },
-    {
       "name" : "h5ad/extract_uns_metadata",
       "repository" : {
         "type" : "github",
@@ -3355,7 +3346,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "2d85a7ba1b429134f081dc69a058174a801b544e",
+    "git_commit" : "944328a100074213f848663f38893c2ab7d92899",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3450,7 +3441,6 @@ meta = [
 
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
-include { verify_data_structure } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/schema/verify_data_structure/main.nf"
 include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata/main.nf"
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
@@ -3640,10 +3630,7 @@ workflow run_wf {
       def metric_configs_file = tempFile("metric_configs.yaml")
       metric_configs_file.write(metric_configs_yaml_blob)
 
-      def viash_file = meta.resources_dir.resolve("_viash.yaml")
-      def viash_file_content = toYamlBlob(readYaml(viash_file).info)
-      def task_info_file = tempFile("task_info.yaml")
-      task_info_file.write(viash_file_content)
+      def task_info_file = meta.resources_dir.resolve("_viash.yaml")
 
       // store the scores in a file
       def score_uns = states.collect{it.score_uns}

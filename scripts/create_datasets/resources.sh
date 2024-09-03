@@ -4,7 +4,7 @@ cat > /tmp/params.yaml << 'HERE'
 input_states: s3://openproblems-data/resources/datasets/**/state.yaml
 rename_keys: 'input:output_dataset'
 output_state: "state.yaml"
-settings: '{"output_train": "$id/train.h5ad", "output_test": "$id/test.h5ad"}'
+settings: '{"output_train": "$id/train.h5ad", "output_test": "$id/test.h5ad", "output_state": "$id/state.yaml"}'
 publish_dir: s3://openproblems-data/resources/task_label_projection/datasets/
 HERE
 
