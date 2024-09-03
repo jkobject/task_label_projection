@@ -16,6 +16,7 @@ methods = [
   scanvi,
   scanvi_scarches,
   seurat_transferdata,
+  singler,
   xgboost
 ]
 

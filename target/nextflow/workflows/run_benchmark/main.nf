@@ -3268,6 +3268,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/singler",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/xgboost",
       "repository" : {
         "type" : "local"
@@ -3349,7 +3355,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "115c158ae0f8986e925b465d587208997a09c1bf",
+    "git_commit" : "2d85a7ba1b429134f081dc69a058174a801b544e",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3456,6 +3462,7 @@ include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/na
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
+include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
 include { accuracy } from "${meta.resources_dir}/../../../nextflow/metrics/accuracy/main.nf"
 include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
@@ -3480,6 +3487,7 @@ methods = [
   scanvi,
   scanvi_scarches,
   seurat_transferdata,
+  singler,
   xgboost
 ]
 

@@ -3155,7 +3155,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/xgboost",
     "viash_version" : "0.9.0-RC7",
-    "git_commit" : "115c158ae0f8986e925b465d587208997a09c1bf",
+    "git_commit" : "2d85a7ba1b429134f081dc69a058174a801b544e",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

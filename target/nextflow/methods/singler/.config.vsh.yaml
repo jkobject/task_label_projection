@@ -1,5 +1,5 @@
-name: "random_labels"
-namespace: "control_methods"
+name: "singler"
+namespace: "methods"
 version: "build_main"
 argument_groups:
 - name: "Arguments"
@@ -115,87 +115,6 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
   - type: "file"
-    name: "--input_solution"
-    label: "Solution"
-    summary: "The solution for the test data"
-    info:
-      format:
-        type: "h5ad"
-        layers:
-        - type: "integer"
-          name: "counts"
-          description: "Raw counts"
-          required: true
-        - type: "double"
-          name: "normalized"
-          description: "Normalized counts"
-          required: true
-        obs:
-        - type: "string"
-          name: "label"
-          description: "Ground truth cell type labels"
-          required: true
-        - type: "string"
-          name: "batch"
-          description: "Batch information"
-          required: true
-        var:
-        - type: "boolean"
-          name: "hvg"
-          description: "Whether or not the feature is considered to be a 'highly variable\
-            \ gene'"
-          required: true
-        - type: "double"
-          name: "hvg_score"
-          description: "A ranking of the features by hvg."
-          required: true
-        obsm:
-        - type: "double"
-          name: "X_pca"
-          description: "The resulting PCA embedding."
-          required: true
-        uns:
-        - type: "string"
-          name: "dataset_id"
-          description: "A unique identifier for the dataset"
-          required: true
-        - name: "dataset_name"
-          type: "string"
-          description: "Nicely formatted name."
-          required: true
-        - type: "string"
-          name: "dataset_url"
-          description: "Link to the original source of the dataset."
-          required: false
-        - name: "dataset_reference"
-          type: "string"
-          description: "Bibtex reference of the paper in which the dataset was published."
-          required: false
-        - name: "dataset_summary"
-          type: "string"
-          description: "Short description of the dataset."
-          required: true
-        - name: "dataset_description"
-          type: "string"
-          description: "Long description of the dataset."
-          required: true
-        - name: "dataset_organism"
-          type: "string"
-          description: "The organism of the sample in the dataset."
-          required: false
-        - type: "string"
-          name: "normalization_id"
-          description: "Which normalization was used"
-          required: true
-    example:
-    - "resources_test/task_label_projection/pancreas/solution.h5ad"
-    must_exist: true
-    create_parent: true
-    required: true
-    direction: "input"
-    multiple: false
-    multiple_sep: ";"
-  - type: "file"
     name: "--output"
     label: "Prediction"
     summary: "The prediction file"
@@ -229,13 +148,14 @@ argument_groups:
     multiple: false
     multiple_sep: ";"
 resources:
-- type: "python_script"
-  path: "script.py"
+- type: "r_script"
+  path: "script.R"
   is_executable: true
-label: "Random Labels"
-summary: "a negative control, where the labels are randomly predicted."
-description: "A negative control, where the labels are randomly predicted without\
-  \ training the data."
+label: "SingleR"
+summary: "Reference-Based Single-Cell RNA-Seq Annotation"
+description: "Performs unbiased cell type recognition from single-cell RNA sequencing\
+  \ data,\nby leveraging reference transcriptomic datasets of pure cell types to infer\
+  \ the\ncell of origin of each single cell independently.\n"
 test_resources:
 - type: "file"
   path: "resources_test/task_label_projection/pancreas"
@@ -247,19 +167,13 @@ test_resources:
   path: "run_and_check_output.py"
   is_executable: true
 info:
-  v1:
-    path: "openproblems/tasks/label_projection/methods/baseline.py"
-    commit: "b3456fd73c04c28516f6df34c57e6e3e8b0dab32"
-  preferred_normalization: "counts"
-  type: "control_method"
+  preferred_normalization: "log_cp10k"
+  type: "method"
   type_info:
-    label: "Control method"
-    summary: "Quality control methods for verifying the pipeline."
-    description: "This folder contains control components for the task. \nThese components\
-      \ have the same interface as the regular methods\nbut also receive the solution\
-      \ object as input. It serves as a\nstarting point to test the relative accuracy\
-      \ of new methods in\nthe task, and also as a quality control for the metrics\
-      \ defined\nin the task. \n"
+    label: "Method"
+    summary: "A label projection method."
+    description: "A label projection method to predict the labels of a new \"test\"\
+      \ndataset based on an annotated \"training\" dataset.\n"
 status: "enabled"
 repositories:
 - type: "github"
@@ -272,9 +186,13 @@ repositories:
   tag: "build/add_common_components"
   path: "viash/core"
 license: "MIT"
+references:
+  doi:
+  - "10.1038/s41590-018-0276-y"
 links:
-  repository: "https://github.com/openproblems-bio/task_label_projection"
+  repository: "https://www.bioconductor.org/packages/release/bioc/html/SingleR.html"
   docker_registry: "ghcr.io"
+  documentation: "https://www.bioconductor.org/packages/release/bioc/vignettes/SingleR/inst/doc/SingleR.html"
 runners:
 - type: "executable"
   id: "executable"
@@ -284,8 +202,8 @@ runners:
   directives:
     label:
     - "midtime"
-    - "lowmem"
-    - "lowcpu"
+    - "highmem"
+    - "highcpu"
     tag: "$id"
   auto:
     simplifyInput: true
@@ -309,22 +227,21 @@ runners:
 engines:
 - type: "docker"
   id: "docker"
-  image: "openproblems/base_python:1.0.0"
+  image: "openproblems/base_r:1.0.0"
   namespace_separator: "/"
   setup:
-  - type: "python"
-    user: false
-    packages:
-    - "scanpy"
-    upgrade: true
+  - type: "r"
+    bioc:
+    - "SingleR"
+    bioc_force_install: false
   entrypoint: []
   cmd: null
 build_info:
-  config: "src/control_methods/random_labels/config.vsh.yaml"
+  config: "src/methods/singler/config.vsh.yaml"
   runner: "nextflow"
   engine: "docker"
-  output: "target/nextflow/control_methods/random_labels"
-  executable: "target/nextflow/control_methods/random_labels/main.nf"
+  output: "target/nextflow/methods/singler"
+  executable: "target/nextflow/methods/singler/main.nf"
   viash_version: "0.9.0-RC7"
   git_commit: "2d85a7ba1b429134f081dc69a058174a801b544e"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
