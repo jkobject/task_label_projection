@@ -3200,7 +3200,7 @@ meta = [
       "repository" : {
         "type" : "github",
         "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
+        "tag" : "build/main",
         "path" : "viash/core"
       }
     },
@@ -3300,7 +3300,7 @@ meta = [
       "type" : "github",
       "name" : "core",
       "repo" : "openproblems-bio/core",
-      "tag" : "build/add_common_components",
+      "tag" : "build/main",
       "path" : "viash/core"
     }
   ],
@@ -3352,7 +3352,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "1b1233fe29049fefc22b135aea846289f0a60fc8",
+    "git_commit" : "373375949462946c98973f812b350d571d833f04",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3387,7 +3387,7 @@ meta = [
         "type" : "github",
         "name" : "core",
         "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
+        "tag" : "build/main",
         "path" : "viash/core"
       }
     ],
@@ -3447,7 +3447,7 @@ meta = [
 
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
-include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata/main.nf"
+include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata/main.nf"
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"

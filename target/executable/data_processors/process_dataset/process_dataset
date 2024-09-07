@@ -190,12 +190,6 @@ function ViashHelp {
   echo "        type: file, required parameter, output, file must exist"
   echo "        example: resources_test/task_label_projection/pancreas/solution.h5ad"
   echo ""
-  echo "    --method"
-  echo "        type: string"
-  echo "        default: batch"
-  echo "        choices: [ batch, random ]"
-  echo "        The process method to assign train/test."
-  echo ""
   echo "    --obs_label"
   echo "        type: string"
   echo "        default: cell_type"
@@ -210,6 +204,11 @@ function ViashHelp {
   echo "        type: integer"
   echo "        example: 123"
   echo "        A seed for the subsampling."
+  echo ""
+  echo "    --num_test_batches"
+  echo "        type: integer"
+  echo "        default: 1"
+  echo "        Number of batches to use for testing."
 }
 
 # initialise variables
@@ -488,9 +487,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component data_processors process_dataset"
-LABEL org.opencontainers.image.created="2024-09-04T04:58:00Z"
+LABEL org.opencontainers.image.created="2024-09-07T16:22:23Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="1b1233fe29049fefc22b135aea846289f0a60fc8"
+LABEL org.opencontainers.image.revision="373375949462946c98973f812b350d571d833f04"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -674,17 +673,6 @@ while [[ $# -gt 0 ]]; do
             VIASH_PAR_OUTPUT_SOLUTION=$(ViashRemoveFlags "$1")
             shift 1
             ;;
-        --method)
-            [ -n "$VIASH_PAR_METHOD" ] && ViashError Bad arguments for option \'--method\': \'$VIASH_PAR_METHOD\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_METHOD="$2"
-            [ $# -lt 2 ] && ViashError Not enough arguments passed to --method. Use "--help" to get more information on the parameters. && exit 1
-            shift 2
-            ;;
-        --method=*)
-            [ -n "$VIASH_PAR_METHOD" ] && ViashError Bad arguments for option \'--method=*\': \'$VIASH_PAR_METHOD\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
-            VIASH_PAR_METHOD=$(ViashRemoveFlags "$1")
-            shift 1
-            ;;
         --obs_label)
             [ -n "$VIASH_PAR_OBS_LABEL" ] && ViashError Bad arguments for option \'--obs_label\': \'$VIASH_PAR_OBS_LABEL\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_OBS_LABEL="$2"
@@ -716,6 +704,17 @@ while [[ $# -gt 0 ]]; do
         --seed=*)
             [ -n "$VIASH_PAR_SEED" ] && ViashError Bad arguments for option \'--seed=*\': \'$VIASH_PAR_SEED\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_SEED=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --num_test_batches)
+            [ -n "$VIASH_PAR_NUM_TEST_BATCHES" ] && ViashError Bad arguments for option \'--num_test_batches\': \'$VIASH_PAR_NUM_TEST_BATCHES\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_NUM_TEST_BATCHES="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --num_test_batches. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --num_test_batches=*)
+            [ -n "$VIASH_PAR_NUM_TEST_BATCHES" ] && ViashError Bad arguments for option \'--num_test_batches=*\': \'$VIASH_PAR_NUM_TEST_BATCHES\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_NUM_TEST_BATCHES=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -930,14 +929,14 @@ if [ -z ${VIASH_META_TEMP_DIR+x} ]; then
 fi
 
 # filling in defaults
-if [ -z ${VIASH_PAR_METHOD+x} ]; then
-  VIASH_PAR_METHOD="batch"
-fi
 if [ -z ${VIASH_PAR_OBS_LABEL+x} ]; then
   VIASH_PAR_OBS_LABEL="cell_type"
 fi
 if [ -z ${VIASH_PAR_OBS_BATCH+x} ]; then
   VIASH_PAR_OBS_BATCH="batch"
+fi
+if [ -z ${VIASH_PAR_NUM_TEST_BATCHES+x} ]; then
+  VIASH_PAR_NUM_TEST_BATCHES="1"
 fi
 
 # check whether required files exist
@@ -950,6 +949,12 @@ fi
 if [[ -n "$VIASH_PAR_SEED" ]]; then
   if ! [[ "$VIASH_PAR_SEED" =~ ^[-+]?[0-9]+$ ]]; then
     ViashError '--seed' has to be an integer. Use "--help" to get more information on the parameters.
+    exit 1
+  fi
+fi
+if [[ -n "$VIASH_PAR_NUM_TEST_BATCHES" ]]; then
+  if ! [[ "$VIASH_PAR_NUM_TEST_BATCHES" =~ ^[-+]?[0-9]+$ ]]; then
+    ViashError '--num_test_batches' has to be an integer. Use "--help" to get more information on the parameters.
     exit 1
   fi
 fi
@@ -1024,19 +1029,6 @@ if [[ -n "$VIASH_META_MEMORY_PIB" ]]; then
     ViashError 'memory_pib' has to be a long. Use "--help" to get more information on the parameters.
     exit 1
   fi
-fi
-
-# check whether value is belongs to a set of choices
-if [ ! -z "$VIASH_PAR_METHOD" ]; then
-  VIASH_PAR_METHOD_CHOICES=("batch;random")
-  IFS=';'
-  set -f
-  if ! [[ ";${VIASH_PAR_METHOD_CHOICES[*]};" =~ ";$VIASH_PAR_METHOD;" ]]; then
-    ViashError '--method' specified value of \'$VIASH_PAR_METHOD\' is not in the list of allowed values. Use "--help" to get more information on the parameters.
-    exit 1
-  fi
-  set +f
-  unset IFS
 fi
 
 # create parent directories of output files, if so desired
@@ -1141,7 +1133,6 @@ trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
 import sys
 import random
-import numpy as np
 import anndata as ad
 import openproblems
 
@@ -1152,10 +1143,10 @@ par = {
   'output_train': $( if [ ! -z ${VIASH_PAR_OUTPUT_TRAIN+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TRAIN//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'output_test': $( if [ ! -z ${VIASH_PAR_OUTPUT_TEST+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TEST//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'output_solution': $( if [ ! -z ${VIASH_PAR_OUTPUT_SOLUTION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_SOLUTION//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'method': $( if [ ! -z ${VIASH_PAR_METHOD+x} ]; then echo "r'${VIASH_PAR_METHOD//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'obs_label': $( if [ ! -z ${VIASH_PAR_OBS_LABEL+x} ]; then echo "r'${VIASH_PAR_OBS_LABEL//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'obs_batch': $( if [ ! -z ${VIASH_PAR_OBS_BATCH+x} ]; then echo "r'${VIASH_PAR_OBS_BATCH//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'seed': $( if [ ! -z ${VIASH_PAR_SEED+x} ]; then echo "int(r'${VIASH_PAR_SEED//\'/\'\"\'\"r\'}')"; else echo None; fi )
+  'seed': $( if [ ! -z ${VIASH_PAR_SEED+x} ]; then echo "int(r'${VIASH_PAR_SEED//\'/\'\"\'\"r\'}')"; else echo None; fi ),
+  'num_test_batches': $( if [ ! -z ${VIASH_PAR_NUM_TEST_BATCHES+x} ]; then echo "int(r'${VIASH_PAR_NUM_TEST_BATCHES//\'/\'\"\'\"r\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
@@ -1199,15 +1190,18 @@ print("input:", adata)
 print(">> Load config", flush=True)
 config = openproblems.project.read_viash_config(meta["config"])
 
-print(f">> Process data using {par['method']} method")
-if par["method"] == "batch":
-    batch_info = adata.obs[par["obs_batch"]]
-    batch_categories = batch_info.dtype.categories
-    test_batches = random.sample(list(batch_categories), 1)
-    is_test = [ x in test_batches for x in batch_info ]
-elif par["method"] == "random":
-    train_ix = np.random.choice(adata.n_obs, round(adata.n_obs * 0.8), replace=False)
-    is_test = [ not x in train_ix for x in range(0, adata.n_obs) ]
+print(">> Selecting test batch(es)", flush=True)
+assert par["obs_batch"] in adata.obs.columns, f"Batch column {par['obs_batch']} not found in data"
+batch_info = adata.obs[par["obs_batch"]]
+batch_categories = list(batch_info.dtype.categories)
+print("Batches found: ", batch_categories)
+
+num_test_batches = par["num_test_batches"]
+assert num_test_batches <= len(batch_categories), "Number of test batches is larger than the number of batches in the data"
+
+test_batches = random.sample(batch_categories, num_test_batches)
+is_test = [ x in test_batches for x in batch_info ]
+print("Selected test batches: ", test_batches)
 
 # subset the different adatas
 print(">> Figuring which data needs to be copied to which output file", flush=True)

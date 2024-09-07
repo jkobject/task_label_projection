@@ -278,7 +278,7 @@ dependencies:
   repository:
     type: "github"
     repo: "openproblems-bio/core"
-    tag: "build/add_common_components"
+    tag: "build/main"
     path: "viash/core"
 - name: "control_methods/majority_vote"
   repository:
@@ -330,7 +330,7 @@ repositories:
 - type: "github"
   name: "core"
   repo: "openproblems-bio/core"
-  tag: "build/add_common_components"
+  tag: "build/main"
   path: "viash/core"
 license: "MIT"
 links:
@@ -367,10 +367,10 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "1b1233fe29049fefc22b135aea846289f0a60fc8"
+  git_commit: "373375949462946c98973f812b350d571d833f04"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
   dependencies:
-  - "target/dependencies/github/openproblems-bio/core/build/add_common_components/nextflow/h5ad/extract_uns_metadata"
+  - "target/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata"
   - "target/nextflow/control_methods/majority_vote"
   - "target/nextflow/control_methods/random_labels"
   - "target/nextflow/control_methods/true_labels"
@@ -424,7 +424,7 @@ package_config:
   - type: "github"
     name: "core"
     repo: "openproblems-bio/core"
-    tag: "build/add_common_components"
+    tag: "build/main"
     path: "viash/core"
   viash_version: "0.9.0"
   source: "src"

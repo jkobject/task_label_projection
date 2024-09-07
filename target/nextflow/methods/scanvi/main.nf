@@ -3090,7 +3090,7 @@ meta = [
       "type" : "github",
       "name" : "core",
       "repo" : "openproblems-bio/core",
-      "tag" : "build/add_common_components",
+      "tag" : "build/main",
       "path" : "viash/core"
     }
   ],
@@ -3178,7 +3178,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scanvi",
     "viash_version" : "0.9.0",
-    "git_commit" : "1b1233fe29049fefc22b135aea846289f0a60fc8",
+    "git_commit" : "373375949462946c98973f812b350d571d833f04",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3213,7 +3213,7 @@ meta = [
         "type" : "github",
         "name" : "core",
         "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
+        "tag" : "build/main",
         "path" : "viash/core"
       }
     ],

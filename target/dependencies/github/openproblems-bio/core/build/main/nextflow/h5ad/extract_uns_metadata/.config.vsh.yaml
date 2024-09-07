@@ -1,6 +1,6 @@
 name: "extract_uns_metadata"
 namespace: "h5ad"
-version: "build_add_common_components"
+version: "build_main"
 argument_groups:
 - name: "Inputs"
   arguments:
@@ -143,19 +143,19 @@ build_info:
   engine: "docker"
   output: "target/nextflow/h5ad/extract_uns_metadata"
   executable: "target/nextflow/h5ad/extract_uns_metadata/main.nf"
-  viash_version: "0.9.0-RC7"
-  git_commit: "4fbb1ca5e4471eb3254556aa062268080661ce48"
+  viash_version: "0.9.0"
+  git_commit: "e5c21c64854690aa6cc3f9eac12eb50d7f65ed5d"
   git_remote: "https://github.com/openproblems-bio/core"
 package_config:
   name: "core"
-  version: "build_add_common_components"
+  version: "build_main"
   description: "Core components for the OpenProblems project.\n"
   info:
     test_resources:
     - type: "s3"
       path: "s3://openproblems-data/resources_test/common/pancreas"
       dest: "resources_test/common/pancreas"
-  viash_version: "0.9.0-RC7"
+  viash_version: "0.9.0"
   source: "src"
   target: "target"
   keywords:

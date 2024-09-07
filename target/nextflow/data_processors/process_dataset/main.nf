@@ -3215,22 +3215,6 @@ meta = [
         },
         {
           "type" : "string",
-          "name" : "--method",
-          "description" : "The process method to assign train/test.",
-          "default" : [
-            "batch"
-          ],
-          "required" : false,
-          "choices" : [
-            "batch",
-            "random"
-          ],
-          "direction" : "input",
-          "multiple" : false,
-          "multiple_sep" : ";"
-        },
-        {
-          "type" : "string",
           "name" : "--obs_label",
           "description" : "Which .obs slot to use as label.",
           "default" : [
@@ -3259,6 +3243,18 @@ meta = [
           "description" : "A seed for the subsampling.",
           "example" : [
             123
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--num_test_batches",
+          "description" : "Number of batches to use for testing.",
+          "default" : [
+            1
           ],
           "required" : false,
           "direction" : "input",
@@ -3311,7 +3307,7 @@ meta = [
       "type" : "github",
       "name" : "core",
       "repo" : "openproblems-bio/core",
-      "tag" : "build/add_common_components",
+      "tag" : "build/main",
       "path" : "viash/core"
     }
   ],
@@ -3375,7 +3371,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.0",
-    "git_commit" : "1b1233fe29049fefc22b135aea846289f0a60fc8",
+    "git_commit" : "373375949462946c98973f812b350d571d833f04",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3410,7 +3406,7 @@ meta = [
         "type" : "github",
         "name" : "core",
         "repo" : "openproblems-bio/core",
-        "tag" : "build/add_common_components",
+        "tag" : "build/main",
         "path" : "viash/core"
       }
     ],
@@ -3479,7 +3475,6 @@ tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import sys
 import random
-import numpy as np
 import anndata as ad
 import openproblems
 
@@ -3490,10 +3485,10 @@ par = {
   'output_train': $( if [ ! -z ${VIASH_PAR_OUTPUT_TRAIN+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TRAIN//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output_test': $( if [ ! -z ${VIASH_PAR_OUTPUT_TEST+x} ]; then echo "r'${VIASH_PAR_OUTPUT_TEST//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output_solution': $( if [ ! -z ${VIASH_PAR_OUTPUT_SOLUTION+x} ]; then echo "r'${VIASH_PAR_OUTPUT_SOLUTION//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'method': $( if [ ! -z ${VIASH_PAR_METHOD+x} ]; then echo "r'${VIASH_PAR_METHOD//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'obs_label': $( if [ ! -z ${VIASH_PAR_OBS_LABEL+x} ]; then echo "r'${VIASH_PAR_OBS_LABEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'obs_batch': $( if [ ! -z ${VIASH_PAR_OBS_BATCH+x} ]; then echo "r'${VIASH_PAR_OBS_BATCH//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'seed': $( if [ ! -z ${VIASH_PAR_SEED+x} ]; then echo "int(r'${VIASH_PAR_SEED//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
+  'seed': $( if [ ! -z ${VIASH_PAR_SEED+x} ]; then echo "int(r'${VIASH_PAR_SEED//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
+  'num_test_batches': $( if [ ! -z ${VIASH_PAR_NUM_TEST_BATCHES+x} ]; then echo "int(r'${VIASH_PAR_NUM_TEST_BATCHES//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3537,15 +3532,18 @@ print("input:", adata)
 print(">> Load config", flush=True)
 config = openproblems.project.read_viash_config(meta["config"])
 
-print(f">> Process data using {par['method']} method")
-if par["method"] == "batch":
-    batch_info = adata.obs[par["obs_batch"]]
-    batch_categories = batch_info.dtype.categories
-    test_batches = random.sample(list(batch_categories), 1)
-    is_test = [ x in test_batches for x in batch_info ]
-elif par["method"] == "random":
-    train_ix = np.random.choice(adata.n_obs, round(adata.n_obs * 0.8), replace=False)
-    is_test = [ not x in train_ix for x in range(0, adata.n_obs) ]
+print(">> Selecting test batch(es)", flush=True)
+assert par["obs_batch"] in adata.obs.columns, f"Batch column {par['obs_batch']} not found in data"
+batch_info = adata.obs[par["obs_batch"]]
+batch_categories = list(batch_info.dtype.categories)
+print("Batches found: ", batch_categories)
+
+num_test_batches = par["num_test_batches"]
+assert num_test_batches <= len(batch_categories), "Number of test batches is larger than the number of batches in the data"
+
+test_batches = random.sample(batch_categories, num_test_batches)
+is_test = [ x in test_batches for x in batch_info ]
+print("Selected test batches: ", test_batches)
 
 # subset the different adatas
 print(">> Figuring which data needs to be copied to which output file", flush=True)
