@@ -2,11 +2,6 @@ __merge__: /src/api/comp_process_dataset.yaml
 name: process_dataset
 namespace: data_processors
 arguments:
-  - name: "--method"
-    type: "string"
-    description: "The process method to assign train/test."
-    choices: ["batch", "random"]
-    default: "batch"
   - name: "--obs_label"
     type: "string"
     description: "Which .obs slot to use as label."
@@ -19,6 +14,10 @@ arguments:
     type: "integer"
     description: "A seed for the subsampling."
     example: 123
+  - name: "--num_test_batches"
+    type: "integer"
+    description: "Number of batches to use for testing."
+    default: 1
 resources:
   - type: python_script
     path: script.py
