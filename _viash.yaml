@@ -88,6 +88,5 @@ repositories:
   - name: core
     type: github
     repo: openproblems-bio/core
-    # tag: build/main
-    tag: build/add_common_components
+    tag: build/main
     path: viash/core
