@@ -20,9 +20,7 @@ methods = [
   seurat_transferdata,
   singler,
   xgboost,
-  scgpt_zero_shot.run(
-    args: [model_path: file("s3://openproblems-work/cache/scGPT_human.zip")]
-  ),
+  scgpt_zero_shot
 ]
 
 metrics = [
