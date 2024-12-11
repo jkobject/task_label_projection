@@ -1,8 +1,6 @@
 __merge__: base_method.yaml
 
 test_resources:
-  - path: /resources_test/task_label_projection/cxg_immune_cell_atlas
-    dest: resources_test/task_label_projection/cxg_immune_cell_atlas
   - type: python_script
-    path: /common/component_tests/check_config.py
+    path: /common/component_tests/run_and_check_output.py
 
