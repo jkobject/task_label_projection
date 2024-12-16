@@ -182,15 +182,18 @@ function ViashHelp {
   echo "Arguments:"
   echo "    --input_train"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/task_label_projection/pancreas/train.h5ad"
+  echo "        example:"
+  echo "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad"
   echo ""
   echo "    --input_test"
   echo "        type: file, required parameter, file must exist"
-  echo "        example: resources_test/task_label_projection/pancreas/test.h5ad"
+  echo "        example:"
+  echo "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad"
   echo ""
   echo "    --output"
   echo "        type: file, required parameter, output, file must exist"
-  echo "        example: resources_test/task_label_projection/pancreas/prediction.h5ad"
+  echo "        example:"
+  echo "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
   echo ""
   echo "    --n_latent"
   echo "        type: integer"
@@ -499,9 +502,9 @@ RUN pip install --upgrade pip && \
 RUN pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scanvi_scarches"
-LABEL org.opencontainers.image.created="2024-09-07T16:22:24Z"
+LABEL org.opencontainers.image.created="2024-12-16T12:14:40Z"
 LABEL org.opencontainers.image.source="https://github.com/scverse/scvi-tools"
-LABEL org.opencontainers.image.revision="373375949462946c98973f812b350d571d833f04"
+LABEL org.opencontainers.image.revision="fc60f2136cc9bb4441f54665ef8fa21c2bd534d6"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

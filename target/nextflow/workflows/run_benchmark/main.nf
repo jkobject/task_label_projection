@@ -2849,6 +2849,18 @@ meta = [
               ],
               "var" : [
                 {
+                  "type" : "string",
+                  "name" : "feature_id",
+                  "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "feature_name",
+                  "description" : "A human-readable name for the feature, usually a gene symbol.",
+                  "required" : true
+                },
+                {
                   "type" : "boolean",
                   "name" : "hvg",
                   "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
@@ -2877,6 +2889,12 @@ meta = [
                   "required" : true
                 },
                 {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                },
+                {
                   "type" : "string",
                   "name" : "normalization_id",
                   "description" : "Which normalization was used",
@@ -2886,7 +2904,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/train.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2927,6 +2945,18 @@ meta = [
               ],
               "var" : [
                 {
+                  "type" : "string",
+                  "name" : "feature_id",
+                  "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "feature_name",
+                  "description" : "A human-readable name for the feature, usually a gene symbol.",
+                  "required" : true
+                },
+                {
                   "type" : "boolean",
                   "name" : "hvg",
                   "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
@@ -2955,6 +2985,12 @@ meta = [
                   "required" : true
                 },
                 {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                },
+                {
                   "type" : "string",
                   "name" : "normalization_id",
                   "description" : "Which normalization was used",
@@ -2964,7 +3000,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/test.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3010,6 +3046,18 @@ meta = [
                 }
               ],
               "var" : [
+                {
+                  "type" : "string",
+                  "name" : "feature_id",
+                  "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "feature_name",
+                  "description" : "A human-readable name for the feature, usually a gene symbol.",
+                  "required" : true
+                },
                 {
                   "type" : "boolean",
                   "name" : "hvg",
@@ -3084,7 +3132,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/solution.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/solution.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3167,12 +3215,22 @@ meta = [
       ]
     },
     {
-      "name" : "Methods",
+      "name" : "Method filtering",
+      "description" : "Use these arguments to filter methods by name. By default, all methods are\nrun. If `--methods_include` is defined, only those methods are run. If\n`--methods_exclude` is defined, all methods except those specified are run.\nThese arguments are mutually exclusive, so only `--methods_include` OR\n`--methods_exclude` can set but not both.\n",
       "arguments" : [
         {
           "type" : "string",
-          "name" : "--method_ids",
-          "description" : "A list of method ids to run. If not specified, all methods will be run.",
+          "name" : "--methods_include",
+          "description" : "A list of method ids to include. If specified, only these methods will be run.\n",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : true,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "string",
+          "name" : "--methods_exclude",
+          "description" : "A list of method ids to exclude. If specified, all methods except the ones listed will be run.\n",
           "required" : false,
           "direction" : "input",
           "multiple" : true,
@@ -3191,17 +3249,20 @@ meta = [
     {
       "type" : "file",
       "path" : "/_viash.yaml"
+    },
+    {
+      "type" : "file",
+      "path" : "/common/nextflow_helpers/helper.nf"
     }
   ],
   "status" : "enabled",
   "dependencies" : [
     {
-      "name" : "h5ad/extract_uns_metadata",
+      "name" : "utils/extract_uns_metadata",
       "repository" : {
         "type" : "github",
-        "repo" : "openproblems-bio/core",
-        "tag" : "build/main",
-        "path" : "viash/core"
+        "repo" : "openproblems-bio/openproblems",
+        "tag" : "build/main"
       }
     },
     {
@@ -3259,6 +3320,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/scgpt_zero_shot",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/seurat_transferdata",
       "repository" : {
         "type" : "local"
@@ -3292,16 +3359,9 @@ meta = [
   "repositories" : [
     {
       "type" : "github",
-      "name" : "openproblems-v2",
-      "repo" : "openproblems-bio/openproblems-v2",
-      "tag" : "main_build"
-    },
-    {
-      "type" : "github",
-      "name" : "core",
-      "repo" : "openproblems-bio/core",
-      "tag" : "build/main",
-      "path" : "viash/core"
+      "name" : "openproblems",
+      "repo" : "openproblems-bio/openproblems",
+      "tag" : "build/main"
     }
   ],
   "license" : "MIT",
@@ -3352,7 +3412,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "373375949462946c98973f812b350d571d833f04",
+    "git_commit" : "fc60f2136cc9bb4441f54665ef8fa21c2bd534d6",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3366,8 +3426,8 @@ meta = [
       "test_resources" : [
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/common/pancreas/",
-          "dest" : "resources_test/common/pancreas"
+          "path" : "s3://openproblems-data/resources_test/common/cxg_immune_cell_atlas/",
+          "dest" : "resources_test/common/cxg_immune_cell_atlas"
         },
         {
           "type" : "s3",
@@ -3379,16 +3439,9 @@ meta = [
     "repositories" : [
       {
         "type" : "github",
-        "name" : "openproblems-v2",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
-      },
-      {
-        "type" : "github",
-        "name" : "core",
-        "repo" : "openproblems-bio/core",
-        "tag" : "build/main",
-        "path" : "viash/core"
+        "name" : "openproblems",
+        "repo" : "openproblems-bio/openproblems",
+        "tag" : "build/main"
       }
     ],
     "viash_version" : "0.9.0",
@@ -3447,7 +3500,7 @@ meta = [
 
 // resolve dependencies dependencies (if any)
 meta["root_dir"] = getRootDir()
-include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/core/build/main/nextflow/h5ad/extract_uns_metadata/main.nf"
+include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata/main.nf"
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"
@@ -3457,6 +3510,7 @@ include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.n
 include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/naive_bayes/main.nf"
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
+include { scgpt_zero_shot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zero_shot/main.nf"
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
@@ -3465,6 +3519,8 @@ include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
 
 // inner workflow
 // user-provided Nextflow code
+include { checkItemAllowed } from "${meta.resources_dir}/helper.nf"
+
 workflow auto {
   findStates(params, meta.config)
     | meta.workflow.run(
@@ -3484,7 +3540,8 @@ methods = [
   scanvi_scarches,
   seurat_transferdata,
   singler,
-  xgboost
+  xgboost,
+  scgpt_zero_shot
 ]
 
 metrics = [
@@ -3533,8 +3590,13 @@ workflow run_wf {
         // if the preferred normalisation is none at all,
         // we can pass whichever dataset we want
         def norm_check = (norm == "log_cp10k" && pref == "counts") || norm == pref
-        def method_check = !state.method_ids || state.method_ids.contains(comp.config.name)
-
+        def method_check = checkItemAllowed(
+          comp.config.name,
+          state.methods_include,
+          state.methods_exclude,
+          "methods_include",
+          "methods_exclude"
+        )
         method_check && norm_check
       },
 

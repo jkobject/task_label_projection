@@ -30,6 +30,15 @@ argument_groups:
           description: "Batch information"
           required: true
         var:
+        - type: "string"
+          name: "feature_id"
+          description: "Unique identifier for the feature, usually a ENSEMBL gene\
+            \ id."
+          required: false
+        - type: "string"
+          name: "feature_name"
+          description: "A human-readable name for the feature, usually a gene symbol."
+          required: true
         - type: "boolean"
           name: "hvg"
           description: "Whether or not the feature is considered to be a 'highly variable\
@@ -78,7 +87,7 @@ argument_groups:
           description: "Which normalization was used"
           required: true
     example:
-    - "resources_test/task_label_projection/pancreas/solution.h5ad"
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/solution.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -111,7 +120,7 @@ argument_groups:
           description: "A unique identifier for the method"
           required: true
     example:
-    - "resources_test/task_label_projection/pancreas/prediction.h5ad"
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -150,7 +159,7 @@ argument_groups:
           multiple: true
           required: true
     example:
-    - "resources_test/task_label_projection/pancreas/score.h5ad"
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/score.h5ad"
     must_exist: true
     create_parent: true
     required: true
@@ -163,8 +172,8 @@ resources:
   is_executable: true
 test_resources:
 - type: "file"
-  path: "resources_test/task_label_projection/pancreas"
-  dest: "resources_test/task_label_projection/pancreas"
+  path: "resources_test/task_label_projection/cxg_immune_cell_atlas"
+  dest: "resources_test/task_label_projection/cxg_immune_cell_atlas"
 - type: "python_script"
   path: "check_config.py"
   is_executable: true
@@ -193,14 +202,9 @@ info:
 status: "enabled"
 repositories:
 - type: "github"
-  name: "openproblems-v2"
-  repo: "openproblems-bio/openproblems-v2"
-  tag: "main_build"
-- type: "github"
-  name: "core"
-  repo: "openproblems-bio/core"
+  name: "openproblems"
+  repo: "openproblems-bio/openproblems"
   tag: "build/main"
-  path: "viash/core"
 license: "MIT"
 links:
   repository: "https://github.com/openproblems-bio/task_label_projection"
@@ -256,7 +260,7 @@ build_info:
   output: "target/executable/metrics/accuracy"
   executable: "target/executable/metrics/accuracy/accuracy"
   viash_version: "0.9.0"
-  git_commit: "373375949462946c98973f812b350d571d833f04"
+  git_commit: "fc60f2136cc9bb4441f54665ef8fa21c2bd534d6"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
 package_config:
   name: "task_label_projection"
@@ -284,21 +288,16 @@ package_config:
     image: "thumbnail.svg"
     test_resources:
     - type: "s3"
-      path: "s3://openproblems-data/resources_test/common/pancreas/"
-      dest: "resources_test/common/pancreas"
+      path: "s3://openproblems-data/resources_test/common/cxg_immune_cell_atlas/"
+      dest: "resources_test/common/cxg_immune_cell_atlas"
     - type: "s3"
       path: "s3://openproblems-data/resources_test/task_label_projection/"
       dest: "resources_test/task_label_projection"
   repositories:
   - type: "github"
-    name: "openproblems-v2"
-    repo: "openproblems-bio/openproblems-v2"
-    tag: "main_build"
-  - type: "github"
-    name: "core"
-    repo: "openproblems-bio/core"
+    name: "openproblems"
+    repo: "openproblems-bio/openproblems"
     tag: "build/main"
-    path: "viash/core"
   viash_version: "0.9.0"
   source: "src"
   target: "target"

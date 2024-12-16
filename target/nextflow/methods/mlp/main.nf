@@ -2849,6 +2849,18 @@ meta = [
               ],
               "var" : [
                 {
+                  "type" : "string",
+                  "name" : "feature_id",
+                  "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "feature_name",
+                  "description" : "A human-readable name for the feature, usually a gene symbol.",
+                  "required" : true
+                },
+                {
                   "type" : "boolean",
                   "name" : "hvg",
                   "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
@@ -2877,6 +2889,12 @@ meta = [
                   "required" : true
                 },
                 {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                },
+                {
                   "type" : "string",
                   "name" : "normalization_id",
                   "description" : "Which normalization was used",
@@ -2886,7 +2904,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/train.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -2927,6 +2945,18 @@ meta = [
               ],
               "var" : [
                 {
+                  "type" : "string",
+                  "name" : "feature_id",
+                  "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
+                  "required" : false
+                },
+                {
+                  "type" : "string",
+                  "name" : "feature_name",
+                  "description" : "A human-readable name for the feature, usually a gene symbol.",
+                  "required" : true
+                },
+                {
                   "type" : "boolean",
                   "name" : "hvg",
                   "description" : "Whether or not the feature is considered to be a 'highly variable gene'",
@@ -2955,6 +2985,12 @@ meta = [
                   "required" : true
                 },
                 {
+                  "name" : "dataset_organism",
+                  "type" : "string",
+                  "description" : "The organism of the sample in the dataset.",
+                  "required" : false
+                },
+                {
                   "type" : "string",
                   "name" : "normalization_id",
                   "description" : "Which normalization was used",
@@ -2964,7 +3000,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/test.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3012,7 +3048,7 @@ meta = [
             }
           },
           "example" : [
-            "resources_test/task_label_projection/pancreas/prediction.h5ad"
+            "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
           ],
           "must_exist" : true,
           "create_parent" : true,
@@ -3061,14 +3097,14 @@ meta = [
   "description" : "Multi-Layer Perceptron is a type of artificial neural network that\nconsists of multiple layers of interconnected neurons. Each neuron computes a\nweighted sum of all neurons in the previous layer and transforms it with\nnonlinear activation function. The output layer provides the final\nprediction, and network weights are updated by gradient descent to minimize\nthe cross entropy loss. Here, the input data is 100-dimensional whitened PCA\ncoordinates for each cell, and we use two hidden layers of 100 neurons each.\n",
   "test_resources" : [
     {
-      "type" : "file",
-      "path" : "/resources_test/task_label_projection/pancreas",
-      "dest" : "resources_test/task_label_projection/pancreas"
-    },
-    {
       "type" : "python_script",
       "path" : "/common/component_tests/check_config.py",
       "is_executable" : true
+    },
+    {
+      "type" : "file",
+      "path" : "/resources_test/task_label_projection/cxg_immune_cell_atlas",
+      "dest" : "resources_test/task_label_projection/cxg_immune_cell_atlas"
     },
     {
       "type" : "python_script",
@@ -3098,16 +3134,9 @@ meta = [
   "repositories" : [
     {
       "type" : "github",
-      "name" : "openproblems-v2",
-      "repo" : "openproblems-bio/openproblems-v2",
-      "tag" : "main_build"
-    },
-    {
-      "type" : "github",
-      "name" : "core",
-      "repo" : "openproblems-bio/core",
-      "tag" : "build/main",
-      "path" : "viash/core"
+      "name" : "openproblems",
+      "repo" : "openproblems-bio/openproblems",
+      "tag" : "build/main"
     }
   ],
   "license" : "MIT",
@@ -3186,7 +3215,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/mlp",
     "viash_version" : "0.9.0",
-    "git_commit" : "373375949462946c98973f812b350d571d833f04",
+    "git_commit" : "fc60f2136cc9bb4441f54665ef8fa21c2bd534d6",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3200,8 +3229,8 @@ meta = [
       "test_resources" : [
         {
           "type" : "s3",
-          "path" : "s3://openproblems-data/resources_test/common/pancreas/",
-          "dest" : "resources_test/common/pancreas"
+          "path" : "s3://openproblems-data/resources_test/common/cxg_immune_cell_atlas/",
+          "dest" : "resources_test/common/cxg_immune_cell_atlas"
         },
         {
           "type" : "s3",
@@ -3213,16 +3242,9 @@ meta = [
     "repositories" : [
       {
         "type" : "github",
-        "name" : "openproblems-v2",
-        "repo" : "openproblems-bio/openproblems-v2",
-        "tag" : "main_build"
-      },
-      {
-        "type" : "github",
-        "name" : "core",
-        "repo" : "openproblems-bio/core",
-        "tag" : "build/main",
-        "path" : "viash/core"
+        "name" : "openproblems",
+        "repo" : "openproblems-bio/openproblems",
+        "tag" : "build/main"
       }
     ],
     "viash_version" : "0.9.0",
