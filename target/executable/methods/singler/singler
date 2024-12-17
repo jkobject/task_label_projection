@@ -473,9 +473,9 @@ RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.pa
   Rscript -e 'if (!requireNamespace("SingleR", quietly = TRUE)) BiocManager::install("SingleR")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods singler"
-LABEL org.opencontainers.image.created="2024-12-16T12:14:40Z"
+LABEL org.opencontainers.image.created="2024-12-17T12:07:20Z"
 LABEL org.opencontainers.image.source="https://www.bioconductor.org/packages/release/bioc/html/SingleR.html"
-LABEL org.opencontainers.image.revision="fc60f2136cc9bb4441f54665ef8fa21c2bd534d6"
+LABEL org.opencontainers.image.revision="776732db2ced4a4f63056d390c124b8da1956b9a"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1077,10 +1077,20 @@ cat(">> Load input data\\n")
 input_train <- read_h5ad(par\$input_train)
 input_test <- read_h5ad(par\$input_test)
 
+test_mat <- t(input_test\$layers[["normalized"]])
+if (inherits(test_mat, "dgRMatrix")) {
+  test_mat <- as(test_mat, "CsparseMatrix")
+}
+
+train_mat <- t(input_train\$layers[["normalized"]])
+if (inherits(train_mat, "dgRMatrix")) {
+  train_mat <- as(train_mat, "CsparseMatrix")
+}
+
 cat(">> Run method\\n")
 pred <- SingleR::SingleR(
-  test = t(input_test\$layers[["normalized"]]),
-  ref = t(input_train\$layers[["normalized"]]),
+  test = test_mat,
+  ref = train_mat,
   labels = input_train\$obs\$label
 )
 

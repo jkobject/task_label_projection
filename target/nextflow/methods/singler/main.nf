@@ -3180,7 +3180,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/singler",
     "viash_version" : "0.9.0",
-    "git_commit" : "fc60f2136cc9bb4441f54665ef8fa21c2bd534d6",
+    "git_commit" : "776732db2ced4a4f63056d390c124b8da1956b9a",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3325,10 +3325,20 @@ cat(">> Load input data\\\\n")
 input_train <- read_h5ad(par\\$input_train)
 input_test <- read_h5ad(par\\$input_test)
 
+test_mat <- t(input_test\\$layers[["normalized"]])
+if (inherits(test_mat, "dgRMatrix")) {
+  test_mat <- as(test_mat, "CsparseMatrix")
+}
+
+train_mat <- t(input_train\\$layers[["normalized"]])
+if (inherits(train_mat, "dgRMatrix")) {
+  train_mat <- as(train_mat, "CsparseMatrix")
+}
+
 cat(">> Run method\\\\n")
 pred <- SingleR::SingleR(
-  test = t(input_test\\$layers[["normalized"]]),
-  ref = t(input_train\\$layers[["normalized"]]),
+  test = test_mat,
+  ref = train_mat,
   labels = input_train\\$obs\\$label
 )
 
