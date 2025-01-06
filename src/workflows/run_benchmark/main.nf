@@ -25,6 +25,7 @@ methods = [
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
+  scprint,
   seurat_transferdata,
   singler,
   uce.run(

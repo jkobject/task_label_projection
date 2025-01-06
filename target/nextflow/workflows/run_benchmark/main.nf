@@ -3344,6 +3344,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/scprint",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/seurat_transferdata",
       "repository" : {
         "type" : "local"
@@ -3436,7 +3442,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "ec64db52931516cbf2a597aae6e6580c56b8d9e4",
+    "git_commit" : "c6ccd5b7deb04afbe3b66525b533ad5bca376cac",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3538,6 +3544,7 @@ include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/method
 include { scgpt_zero_shot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zero_shot/main.nf"
 include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
 include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
+include { scprint } from "${meta.resources_dir}/../../../nextflow/methods/scprint/main.nf"
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
@@ -3574,6 +3581,7 @@ methods = [
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
+  scprint,
   seurat_transferdata,
   singler,
   uce.run(
