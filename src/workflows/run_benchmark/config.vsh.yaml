@@ -90,6 +90,7 @@ dependencies:
   - name: methods/scgpt_zero_shot
   - name: methods/scimilarity
   - name: methods/scimilarity_knn
+  - name: methods/scprint
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost
