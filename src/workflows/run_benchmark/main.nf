@@ -17,10 +17,16 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  scimilarity.run(
+    args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
+  ),
+  scimilarity_knn.run(
+    args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
+  ),
+  scgpt_zero_shot,
   seurat_transferdata,
   singler,
   xgboost,
-  scgpt_zero_shot
 ]
 
 metrics = [
@@ -39,7 +45,7 @@ workflow run_wf {
    ****************************/
   dataset_ch = input_ch
     // store join id
-    | map{ id, state -> 
+    | map{ id, state ->
       [id, state + ["_meta": [join_id: id]]]
     }
 
@@ -113,7 +119,7 @@ workflow run_wf {
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
-        input_solution: "input_solution", 
+        input_solution: "input_solution",
         input_prediction: "method_output"
       ],
       // use 'toState' to publish that component's outputs to the overall state
@@ -196,7 +202,7 @@ workflow run_wf {
       ["output", new_state]
     }
 
-    // merge all of the output data 
+    // merge all of the output data
     | mix(dataset_meta_ch)
     | joinStates{ ids, states ->
       def mergedStates = states.inject([:]) { acc, m -> acc + m }
