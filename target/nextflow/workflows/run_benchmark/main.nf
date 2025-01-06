@@ -3326,6 +3326,18 @@ meta = [
       }
     },
     {
+      "name" : "methods/scimilarity",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/scimilarity_knn",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/seurat_transferdata",
       "repository" : {
         "type" : "local"
@@ -3412,7 +3424,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "776732db2ced4a4f63056d390c124b8da1956b9a",
+    "git_commit" : "254a1da2b8c20fb7c9aaf9a84702aca7334c67a1",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3511,6 +3523,8 @@ include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/na
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
 include { scgpt_zero_shot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zero_shot/main.nf"
+include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
+include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
@@ -3538,10 +3552,16 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  scimilarity.run(
+    args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
+  ),
+  scimilarity_knn.run(
+    args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
+  ),
+  scgpt_zero_shot,
   seurat_transferdata,
   singler,
   xgboost,
-  scgpt_zero_shot
 ]
 
 metrics = [
@@ -3560,7 +3580,7 @@ workflow run_wf {
    ****************************/
   dataset_ch = input_ch
     // store join id
-    | map{ id, state -> 
+    | map{ id, state ->
       [id, state + ["_meta": [join_id: id]]]
     }
 
@@ -3634,7 +3654,7 @@ workflow run_wf {
       },
       // use 'fromState' to fetch the arguments the component requires from the overall state
       fromState: [
-        input_solution: "input_solution", 
+        input_solution: "input_solution",
         input_prediction: "method_output"
       ],
       // use 'toState' to publish that component's outputs to the overall state
@@ -3717,7 +3737,7 @@ workflow run_wf {
       ["output", new_state]
     }
 
-    // merge all of the output data 
+    // merge all of the output data
     | mix(dataset_meta_ch)
     | joinStates{ ids, states ->
       def mergedStates = states.inject([:]) { acc, m -> acc + m }

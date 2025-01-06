@@ -360,6 +360,12 @@ dependencies:
 - name: "methods/scgpt_zero_shot"
   repository:
     type: "local"
+- name: "methods/scimilarity"
+  repository:
+    type: "local"
+- name: "methods/scimilarity_knn"
+  repository:
+    type: "local"
 - name: "methods/seurat_transferdata"
   repository:
     type: "local"
@@ -415,7 +421,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "776732db2ced4a4f63056d390c124b8da1956b9a"
+  git_commit: "254a1da2b8c20fb7c9aaf9a84702aca7334c67a1"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
@@ -429,6 +435,8 @@ build_info:
   - "target/nextflow/methods/scanvi"
   - "target/nextflow/methods/scanvi_scarches"
   - "target/nextflow/methods/scgpt_zero_shot"
+  - "target/nextflow/methods/scimilarity"
+  - "target/nextflow/methods/scimilarity_knn"
   - "target/nextflow/methods/seurat_transferdata"
   - "target/nextflow/methods/singler"
   - "target/nextflow/methods/xgboost"
