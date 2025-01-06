@@ -80,6 +80,7 @@ dependencies:
   - name: control_methods/majority_vote
   - name: control_methods/random_labels
   - name: control_methods/true_labels
+  - name: methods/geneformer
   - name: methods/knn
   - name: methods/logistic_regression
   - name: methods/mlp
@@ -92,6 +93,7 @@ dependencies:
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost
+  - name: methods/uce
   - name: metrics/accuracy
   - name: metrics/f1
 

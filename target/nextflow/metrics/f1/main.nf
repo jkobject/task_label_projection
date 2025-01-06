@@ -3209,7 +3209,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/metrics/f1",
     "viash_version" : "0.9.0",
-    "git_commit" : "254a1da2b8c20fb7c9aaf9a84702aca7334c67a1",
+    "git_commit" : "ec64db52931516cbf2a597aae6e6580c56b8d9e4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

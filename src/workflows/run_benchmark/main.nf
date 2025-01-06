@@ -11,22 +11,26 @@ methods = [
   majority_vote,
   random_labels,
   true_labels,
+  geneformer,
   knn,
   logistic_regression,
   mlp,
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  scgpt_zero_shot,
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
-  scgpt_zero_shot,
   seurat_transferdata,
   singler,
-  xgboost,
+  uce.run(
+    args: [model: file("s3://openproblems-work/cache/uce-model-v5.zip")]
+  ),
+  xgboost
 ]
 
 metrics = [

@@ -3284,6 +3284,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/geneformer",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/knn",
       "repository" : {
         "type" : "local"
@@ -3351,6 +3357,12 @@ meta = [
     },
     {
       "name" : "methods/xgboost",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/uce",
       "repository" : {
         "type" : "local"
       }
@@ -3424,7 +3436,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "254a1da2b8c20fb7c9aaf9a84702aca7334c67a1",
+    "git_commit" : "ec64db52931516cbf2a597aae6e6580c56b8d9e4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3516,6 +3528,7 @@ include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/open
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"
+include { geneformer } from "${meta.resources_dir}/../../../nextflow/methods/geneformer/main.nf"
 include { knn } from "${meta.resources_dir}/../../../nextflow/methods/knn/main.nf"
 include { logistic_regression } from "${meta.resources_dir}/../../../nextflow/methods/logistic_regression/main.nf"
 include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.nf"
@@ -3528,6 +3541,7 @@ include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/method
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
+include { uce } from "${meta.resources_dir}/../../../nextflow/methods/uce/main.nf"
 include { accuracy } from "${meta.resources_dir}/../../../nextflow/metrics/accuracy/main.nf"
 include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
 
@@ -3546,22 +3560,26 @@ methods = [
   majority_vote,
   random_labels,
   true_labels,
+  geneformer,
   knn,
   logistic_regression,
   mlp,
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  scgpt_zero_shot,
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
-  scgpt_zero_shot,
   seurat_transferdata,
   singler,
-  xgboost,
+  uce.run(
+    args: [model: file("s3://openproblems-work/cache/uce-model-v5.zip")]
+  ),
+  xgboost
 ]
 
 metrics = [
