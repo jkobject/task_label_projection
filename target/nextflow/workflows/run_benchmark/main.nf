@@ -2852,7 +2852,7 @@ meta = [
                   "type" : "string",
                   "name" : "feature_id",
                   "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
-                  "required" : false
+                  "required" : true
                 },
                 {
                   "type" : "string",
@@ -2948,7 +2948,7 @@ meta = [
                   "type" : "string",
                   "name" : "feature_id",
                   "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
-                  "required" : false
+                  "required" : true
                 },
                 {
                   "type" : "string",
@@ -3050,7 +3050,7 @@ meta = [
                   "type" : "string",
                   "name" : "feature_id",
                   "description" : "Unique identifier for the feature, usually a ENSEMBL gene id.",
-                  "required" : false
+                  "required" : true
                 },
                 {
                   "type" : "string",
@@ -3442,7 +3442,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "c6ccd5b7deb04afbe3b66525b533ad5bca376cac",
+    "git_commit" : "0def7c62cbda5cdf52c7406a06f91d9e36a5535d",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
