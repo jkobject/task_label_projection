@@ -1,0 +1,46 @@
+__merge__: ../../api/base_method.yaml
+
+name: cellfm
+label: CellFM
+summary: CellFM is a robust single-cell foundation model equiped with 800 parameters, trained on a dataset comprising about 100 million human cells.
+description: |
+  CellFM is a model based on a varaint of the RetNet architecture that ensures a balance between efficiency and performance. It can be used across diverse applications such as cell annotation, perturbation prediction, and gene function prediction.
+  This method employs the zero-shot learning approach to obtain cell type labels.
+  
+references:
+  doi: 
+    - 10.1101/2024.06.04.597369
+
+links:
+  documentation: https://github.com/biomed-AI/CellFM
+  repository: https://github.com/biomed-AI/CellFM
+
+info:
+  preferred_normalization: counts
+
+arguments:
+  - name: "--model"
+    type: file
+    description: Path to the model being used.
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        packages: 
+          - huggingface_hub
+      - type: docker
+        run: |
+          pip install mindspore-dev -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+          git clone https://github.com/biomed-AI/CellFM.git
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu, gpu]
