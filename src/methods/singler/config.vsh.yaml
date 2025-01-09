@@ -20,7 +20,7 @@ resources:
   - type: r_script
     path: script.R
 engines:
-  - type: docker
+  - type: dockerg
     image: openproblems/base_r:1.0.0
     setup:
       - type: r
@@ -29,4 +29,4 @@ runners:
   - type: executable
   - type: nextflow
     directives: 
-      label: [midtime, highmem, highcpu]
+      label: [hightime, highmem, highcpu]
