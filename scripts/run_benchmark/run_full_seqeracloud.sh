@@ -18,6 +18,7 @@ input_states: s3://openproblems-data/resources/task_label_projection/datasets/**
 rename_keys: 'input_train:output_train;input_test:output_test;input_solution:output_solution'
 output_state: "state.yaml"
 publish_dir: "$publish_dir"
+settings: '{"methods_exclude": ["geneformer"]}'
 HERE
 
 tw launch https://github.com/openproblems-bio/task_label_projection.git \

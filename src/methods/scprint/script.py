@@ -1,9 +1,7 @@
 import anndata as ad
 from scdataloader import Preprocessor
-import sys
 from huggingface_hub import hf_hub_download
-from scprint.tasks import Embedder
-from scprint import scPrint
+import scprint
 import torch
 import os
 import numpy as np
@@ -65,7 +63,7 @@ if model_checkpoint_file is None:
     )
 
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
-model = scPrint.load_from_checkpoint(
+model = scprint.scPrint.load_from_checkpoint(
     model_checkpoint_file,
     transformer="normal",  # Don't use this for GPUs with flashattention
     precpt_gene_emb=None,
@@ -84,7 +82,7 @@ else:
 n_cores_available = len(os.sched_getaffinity(0))
 
 print(f"Using {n_cores_available} worker cores")
-embedder = Embedder(
+embedder = scprint.tasks.Embedder(
     batch_size=32,
     how="random expr",
     max_len=4000,

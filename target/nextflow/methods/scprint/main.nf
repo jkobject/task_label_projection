@@ -3240,7 +3240,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.0",
-    "git_commit" : "0def7c62cbda5cdf52c7406a06f91d9e36a5535d",
+    "git_commit" : "9e15000b82d28d1f18274847c326d443c5a2d247",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3337,10 +3337,8 @@ tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import anndata as ad
 from scdataloader import Preprocessor
-import sys
 from huggingface_hub import hf_hub_download
-from scprint.tasks import Embedder
-from scprint import scPrint
+import scprint
 import torch
 import os
 import numpy as np
@@ -3426,7 +3424,7 @@ if model_checkpoint_file is None:
     )
 
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
-model = scPrint.load_from_checkpoint(
+model = scprint.scPrint.load_from_checkpoint(
     model_checkpoint_file,
     transformer="normal",  # Don't use this for GPUs with flashattention
     precpt_gene_emb=None,
@@ -3445,7 +3443,7 @@ else:
 n_cores_available = len(os.sched_getaffinity(0))
 
 print(f"Using {n_cores_available} worker cores")
-embedder = Embedder(
+embedder = scprint.tasks.Embedder(
     batch_size=32,
     how="random expr",
     max_len=4000,

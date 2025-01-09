@@ -3186,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/seurat_transferdata",
     "viash_version" : "0.9.0",
-    "git_commit" : "0def7c62cbda5cdf52c7406a06f91d9e36a5535d",
+    "git_commit" : "9e15000b82d28d1f18274847c326d443c5a2d247",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
