@@ -3134,7 +3134,7 @@ meta = [
         "label" : [
           "midtime",
           "midmem",
-          "lowcpu"
+          "midcpu"
         ],
         "tag" : "$id"
       },
@@ -3186,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/naive_bayes",
     "viash_version" : "0.9.0",
-    "git_commit" : "7dc145b8f5d3a63fa4c7502f017733e28a0616c2",
+    "git_commit" : "1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3710,7 +3710,7 @@ meta["defaults"] = [
   "label" : [
     "midtime",
     "midmem",
-    "lowcpu"
+    "midcpu"
   ],
   "tag" : "$id"
 }'''),

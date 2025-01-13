@@ -3137,8 +3137,8 @@ meta = [
       "directives" : {
         "label" : [
           "midtime",
-          "midmem",
-          "midcpu",
+          "highmem",
+          "highcpu",
           "gpu"
         ],
         "tag" : "$id"
@@ -3193,7 +3193,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/geneformer",
     "viash_version" : "0.9.0",
-    "git_commit" : "7dc145b8f5d3a63fa4c7502f017733e28a0616c2",
+    "git_commit" : "1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3289,6 +3289,7 @@ def innerWorkflowFactory(args) {
 tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import os
+import sys
 from tempfile import TemporaryDirectory
 import anndata as ad
 from geneformer import Classifier, TranscriptomeTokenizer, DataCollatorForCellClassification
@@ -3339,10 +3340,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"Geneformer can only be used with human data "
-    f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
+    f"(dataset_organism == '{input_train.uns['dataset_organism']}')",
+    flush=True
   )
+  sys.exit(99)
 
 is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:
@@ -3888,8 +3891,8 @@ meta["defaults"] = [
   },
   "label" : [
     "midtime",
-    "midmem",
-    "midcpu",
+    "highmem",
+    "highcpu",
     "gpu"
   ],
   "tag" : "$id"

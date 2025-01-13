@@ -498,9 +498,9 @@ RUN pip install --upgrade pip && \
 RUN pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scgpt_zero_shot"
-LABEL org.opencontainers.image.created="2025-01-13T08:40:51Z"
+LABEL org.opencontainers.image.created="2025-01-13T15:45:54Z"
 LABEL org.opencontainers.image.source="https://github.com/bowang-lab/scGPT"
-LABEL org.opencontainers.image.revision="7dc145b8f5d3a63fa4c7502f017733e28a0616c2"
+LABEL org.opencontainers.image.revision="1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29"
 LABEL org.opencontainers.image.version="build_multiple_updates"
 
 VIASHDOCKER
@@ -1138,6 +1138,7 @@ trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
 import os
+import sys
 import tarfile
 import zipfile
 import anndata as ad
@@ -1199,10 +1200,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")"
+    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")",
+    flush=True
   )
+  sys.exit(99)
 
 if par["model"] is None:
   print(f"\\n>>> Downloading '{par['model_name']}' model...", flush=True)

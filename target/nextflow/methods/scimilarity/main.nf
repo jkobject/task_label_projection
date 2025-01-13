@@ -3129,8 +3129,8 @@ meta = [
       "directives" : {
         "label" : [
           "midtime",
-          "midmem",
-          "lowcpu"
+          "highmem",
+          "midcpu"
         ],
         "tag" : "$id"
       },
@@ -3182,7 +3182,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scimilarity",
     "viash_version" : "0.9.0",
-    "git_commit" : "7dc145b8f5d3a63fa4c7502f017733e28a0616c2",
+    "git_commit" : "1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3278,6 +3278,7 @@ def innerWorkflowFactory(args) {
 tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import os
+import sys
 import tempfile
 import zipfile
 import tarfile
@@ -3330,10 +3331,12 @@ input_train = ad.read_h5ad(par['input_train'])
 print(input_train, flush=True)
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-    raise ValueError(
+    print(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \\\\"{input_train.uns['dataset_organism']}\\\\")"
+        f"(dataset_organism == \\\\"{input_train.uns['dataset_organism']}\\\\")",
+        flush=True
     )
+    sys.exit(99)
 
 print("\\\\n>>> Reading test data...", flush=True)
 print(f"Test H5AD file: '{par['input_test']}'", flush=True)
@@ -3891,8 +3894,8 @@ meta["defaults"] = [
   },
   "label" : [
     "midtime",
-    "midmem",
-    "lowcpu"
+    "highmem",
+    "midcpu"
   ],
   "tag" : "$id"
 }'''),

@@ -482,9 +482,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "pyarrow<15.0.0a0,>=14.0.1" "huggingface_hub" "git+https://huggingface.co/ctheodoris/Geneformer.git"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods geneformer"
-LABEL org.opencontainers.image.created="2025-01-13T08:40:52Z"
+LABEL org.opencontainers.image.created="2025-01-13T15:45:55Z"
 LABEL org.opencontainers.image.source="https://huggingface.co/ctheodoris/Geneformer"
-LABEL org.opencontainers.image.revision="7dc145b8f5d3a63fa4c7502f017733e28a0616c2"
+LABEL org.opencontainers.image.revision="1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29"
 LABEL org.opencontainers.image.version="build_multiple_updates"
 
 VIASHDOCKER
@@ -1066,6 +1066,7 @@ trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
 import os
+import sys
 from tempfile import TemporaryDirectory
 import anndata as ad
 from geneformer import Classifier, TranscriptomeTokenizer, DataCollatorForCellClassification
@@ -1116,10 +1117,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"Geneformer can only be used with human data "
-    f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
+    f"(dataset_organism == '{input_train.uns['dataset_organism']}')",
+    flush=True
   )
+  sys.exit(99)
 
 is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:
