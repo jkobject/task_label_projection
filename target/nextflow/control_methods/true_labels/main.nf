@@ -3301,7 +3301,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/control_methods/true_labels",
     "viash_version" : "0.9.0",
-    "git_commit" : "1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29",
+    "git_commit" : "3ba1a085f34f1163a1c847484e98acf90ddc2564",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

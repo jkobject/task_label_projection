@@ -473,9 +473,9 @@ RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.pa
   Rscript -e 'if (!requireNamespace("SingleR", quietly = TRUE)) BiocManager::install("SingleR")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods singler"
-LABEL org.opencontainers.image.created="2025-01-13T15:45:54Z"
+LABEL org.opencontainers.image.created="2025-01-14T11:44:12Z"
 LABEL org.opencontainers.image.source="https://www.bioconductor.org/packages/release/bioc/html/SingleR.html"
-LABEL org.opencontainers.image.revision="1fd2f332efc7ca7e0ea2cc4d6508edf7bb828c29"
+LABEL org.opencontainers.image.revision="3ba1a085f34f1163a1c847484e98acf90ddc2564"
 LABEL org.opencontainers.image.version="build_multiple_updates"
 
 VIASHDOCKER
