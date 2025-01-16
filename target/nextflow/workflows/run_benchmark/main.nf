@@ -3442,7 +3442,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "411f6777a671ac671b6b4579ab0d369d8d12dedf",
+    "git_commit" : "475f0918e971f2630443e8b934ffce41b26bcf96",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3574,7 +3574,9 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
-  scgpt_zero_shot,
+  scgpt_zero_shot.run(
+    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  ),
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),

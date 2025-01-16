@@ -64,9 +64,12 @@ engines:
       - type: python
         pip:
           - huggingface_hub
-          - scprint
+          # Can be unpinned after https://github.com/cantinilab/scPRINT/issues/14 is resolved
+          - scprint==1.6.2
+          - scdataloader==1.6.4
       - type: docker
-        run: lamin init --storage ./main --name main --schema bionty
+        run: |
+          lamin init --storage ./main --name main --schema bionty
       - type: python
         script: import bionty as bt; bt.core.sync_all_sources_to_latest()
       - type: docker
@@ -78,4 +81,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime, midmem, midcpu, gpu]
+      label: [midtime, highmem, midcpu, gpu]

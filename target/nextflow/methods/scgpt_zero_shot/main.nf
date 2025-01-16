@@ -3092,6 +3092,18 @@ meta = [
           "direction" : "input",
           "multiple" : false,
           "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--n_hvg",
+          "description" : "Number of highly variable genes to use.",
+          "default" : [
+            3000
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
         }
       ]
     }
@@ -3217,7 +3229,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_zero_shot",
     "viash_version" : "0.9.0",
-    "git_commit" : "411f6777a671ac671b6b4579ab0d369d8d12dedf",
+    "git_commit" : "475f0918e971f2630443e8b934ffce41b26bcf96",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3313,6 +3325,7 @@ def innerWorkflowFactory(args) {
 tempscript=".viash_script.sh"
 cat > "$tempscript" << VIASHMAIN
 import os
+import sys
 import tarfile
 import zipfile
 import anndata as ad
@@ -3330,7 +3343,8 @@ par = {
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'model_name': $( if [ ! -z ${VIASH_PAR_MODEL_NAME+x} ]; then echo "r'${VIASH_PAR_MODEL_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'model': $( if [ ! -z ${VIASH_PAR_MODEL+x} ]; then echo "r'${VIASH_PAR_MODEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'use_faiss': $( if [ ! -z ${VIASH_PAR_USE_FAISS+x} ]; then echo "r'${VIASH_PAR_USE_FAISS//\\'/\\'\\"\\'\\"r\\'}'.lower() == 'true'"; else echo None; fi )
+  'use_faiss': $( if [ ! -z ${VIASH_PAR_USE_FAISS+x} ]; then echo "r'${VIASH_PAR_USE_FAISS//\\'/\\'\\"\\'\\"r\\'}'.lower() == 'true'"; else echo None; fi ),
+  'n_hvg': $( if [ ! -z ${VIASH_PAR_N_HVG+x} ]; then echo "int(r'${VIASH_PAR_N_HVG//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3373,10 +3387,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \\\\"{input_train.uns['dataset_organism']}\\\\")"
+    f"(dataset_organism is \\\\"{input_train.uns['dataset_organism']}\\\\")",
+    flush=True
   )
+  sys.exit(99)
 
 if par["model"] is None:
   print(f"\\\\n>>> Downloading '{par['model_name']}' model...", flush=True)
@@ -3423,6 +3439,11 @@ print("GPU is recommended") if device == "cpu" else None
 
 print('Preprocessing and embedding train data', flush=True)
 input_train.X = input_train.layers["counts"]
+if par["n_hvg"]:
+  print(f"Selecting top {par['n_hvg']} highly variable genes", flush=True)
+  idx = input_train.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
+  input_train = input_train[:, idx].copy()
+
 ref_embed = scgpt.tasks.embed_data(
   input_train,
   model_dir,
@@ -3436,6 +3457,11 @@ ref_embed = scgpt.tasks.embed_data(
 
 print('Preprocessing and embedding test data', flush=True)
 input_test.X = input_test.layers["counts"]
+if par["n_hvg"]:
+  print(f"Selecting top {par['n_hvg']} highly variable genes", flush=True)
+  idx = input_test.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
+  input_test = input_test[:, idx].copy()
+
 test_embed = scgpt.tasks.embed_data(
   input_test,
   model_dir,

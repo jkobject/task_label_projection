@@ -210,6 +210,11 @@ function ViashHelp {
   echo "    --use_faiss"
   echo "        type: boolean"
   echo "        Whether to use faiss for similarity search"
+  echo ""
+  echo "    --n_hvg"
+  echo "        type: integer"
+  echo "        default: 3000"
+  echo "        Number of highly variable genes to use."
 }
 
 # initialise variables
@@ -493,9 +498,9 @@ RUN pip install --upgrade pip && \
 RUN pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scgpt_zero_shot"
-LABEL org.opencontainers.image.created="2025-01-09T16:39:23Z"
+LABEL org.opencontainers.image.created="2025-01-16T11:02:13Z"
 LABEL org.opencontainers.image.source="https://github.com/bowang-lab/scGPT"
-LABEL org.opencontainers.image.revision="411f6777a671ac671b6b4579ab0d369d8d12dedf"
+LABEL org.opencontainers.image.revision="475f0918e971f2630443e8b934ffce41b26bcf96"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -699,6 +704,17 @@ while [[ $# -gt 0 ]]; do
         --use_faiss=*)
             [ -n "$VIASH_PAR_USE_FAISS" ] && ViashError Bad arguments for option \'--use_faiss=*\': \'$VIASH_PAR_USE_FAISS\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
             VIASH_PAR_USE_FAISS=$(ViashRemoveFlags "$1")
+            shift 1
+            ;;
+        --n_hvg)
+            [ -n "$VIASH_PAR_N_HVG" ] && ViashError Bad arguments for option \'--n_hvg\': \'$VIASH_PAR_N_HVG\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_N_HVG="$2"
+            [ $# -lt 2 ] && ViashError Not enough arguments passed to --n_hvg. Use "--help" to get more information on the parameters. && exit 1
+            shift 2
+            ;;
+        --n_hvg=*)
+            [ -n "$VIASH_PAR_N_HVG" ] && ViashError Bad arguments for option \'--n_hvg=*\': \'$VIASH_PAR_N_HVG\' \& \'$2\' - you should provide exactly one argument for this option. && exit 1
+            VIASH_PAR_N_HVG=$(ViashRemoveFlags "$1")
             shift 1
             ;;
         ---engine)
@@ -912,6 +928,9 @@ fi
 if [ -z ${VIASH_PAR_MODEL_NAME+x} ]; then
   VIASH_PAR_MODEL_NAME="scGPT_human"
 fi
+if [ -z ${VIASH_PAR_N_HVG+x} ]; then
+  VIASH_PAR_N_HVG="3000"
+fi
 
 # check whether required files exist
 if [ ! -z "$VIASH_PAR_INPUT_TRAIN" ] && [ ! -e "$VIASH_PAR_INPUT_TRAIN" ]; then
@@ -931,6 +950,12 @@ fi
 if [[ -n "$VIASH_PAR_USE_FAISS" ]]; then
   if ! [[ "$VIASH_PAR_USE_FAISS" =~ ^(true|True|TRUE|false|False|FALSE|yes|Yes|YES|no|No|NO)$ ]]; then
     ViashError '--use_faiss' has to be a boolean. Use "--help" to get more information on the parameters.
+    exit 1
+  fi
+fi
+if [[ -n "$VIASH_PAR_N_HVG" ]]; then
+  if ! [[ "$VIASH_PAR_N_HVG" =~ ^[-+]?[0-9]+$ ]]; then
+    ViashError '--n_hvg' has to be an integer. Use "--help" to get more information on the parameters.
     exit 1
   fi
 fi
@@ -1113,6 +1138,7 @@ trap clean_up EXIT
 trap interrupt INT SIGINT
 cat > "\$tempscript" << 'VIASHMAIN'
 import os
+import sys
 import tarfile
 import zipfile
 import anndata as ad
@@ -1130,7 +1156,8 @@ par = {
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'model_name': $( if [ ! -z ${VIASH_PAR_MODEL_NAME+x} ]; then echo "r'${VIASH_PAR_MODEL_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
   'model': $( if [ ! -z ${VIASH_PAR_MODEL+x} ]; then echo "r'${VIASH_PAR_MODEL//\'/\'\"\'\"r\'}'"; else echo None; fi ),
-  'use_faiss': $( if [ ! -z ${VIASH_PAR_USE_FAISS+x} ]; then echo "r'${VIASH_PAR_USE_FAISS//\'/\'\"\'\"r\'}'.lower() == 'true'"; else echo None; fi )
+  'use_faiss': $( if [ ! -z ${VIASH_PAR_USE_FAISS+x} ]; then echo "r'${VIASH_PAR_USE_FAISS//\'/\'\"\'\"r\'}'.lower() == 'true'"; else echo None; fi ),
+  'n_hvg': $( if [ ! -z ${VIASH_PAR_N_HVG+x} ]; then echo "int(r'${VIASH_PAR_N_HVG//\'/\'\"\'\"r\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\'/\'\"\'\"r\'}'"; else echo None; fi ),
@@ -1173,10 +1200,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")"
+    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")",
+    flush=True
   )
+  sys.exit(99)
 
 if par["model"] is None:
   print(f"\\n>>> Downloading '{par['model_name']}' model...", flush=True)
@@ -1223,6 +1252,11 @@ print("GPU is recommended") if device == "cpu" else None
 
 print('Preprocessing and embedding train data', flush=True)
 input_train.X = input_train.layers["counts"]
+if par["n_hvg"]:
+  print(f"Selecting top {par['n_hvg']} highly variable genes", flush=True)
+  idx = input_train.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
+  input_train = input_train[:, idx].copy()
+
 ref_embed = scgpt.tasks.embed_data(
   input_train,
   model_dir,
@@ -1236,6 +1270,11 @@ ref_embed = scgpt.tasks.embed_data(
 
 print('Preprocessing and embedding test data', flush=True)
 input_test.X = input_test.layers["counts"]
+if par["n_hvg"]:
+  print(f"Selecting top {par['n_hvg']} highly variable genes", flush=True)
+  idx = input_test.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
+  input_test = input_test[:, idx].copy()
+
 test_embed = scgpt.tasks.embed_data(
   input_test,
   model_dir,

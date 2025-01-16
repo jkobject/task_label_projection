@@ -3157,7 +3157,7 @@ meta = [
       "directives" : {
         "label" : [
           "midtime",
-          "midmem",
+          "highmem",
           "midcpu",
           "gpu"
         ],
@@ -3199,14 +3199,15 @@ meta = [
           "user" : false,
           "pip" : [
             "huggingface_hub",
-            "scprint"
+            "scprint==1.6.2",
+            "scdataloader==1.6.4"
           ],
           "upgrade" : true
         },
         {
           "type" : "docker",
           "run" : [
-            "lamin init --storage ./main --name main --schema bionty"
+            "lamin init --storage ./main --name main --schema bionty\n"
           ]
         },
         {
@@ -3240,7 +3241,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.0",
-    "git_commit" : "411f6777a671ac671b6b4579ab0d369d8d12dedf",
+    "git_commit" : "475f0918e971f2630443e8b934ffce41b26bcf96",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3937,7 +3938,7 @@ meta["defaults"] = [
   },
   "label" : [
     "midtime",
-    "midmem",
+    "highmem",
     "midcpu",
     "gpu"
   ],

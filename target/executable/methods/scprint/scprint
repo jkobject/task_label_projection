@@ -496,9 +496,10 @@ function ViashDockerfile {
 FROM openproblems/base_pytorch_nvidia:1.0.0
 ENTRYPOINT []
 RUN pip install --upgrade pip && \
-  pip install --upgrade --no-cache-dir "huggingface_hub" "scprint"
+  pip install --upgrade --no-cache-dir "huggingface_hub" "scprint==1.6.2" "scdataloader==1.6.4"
 
 RUN lamin init --storage ./main --name main --schema bionty
+
 RUN pip install --upgrade pip && \
   python -c 'import bionty as bt; bt.core.sync_all_sources_to_latest()'
 
@@ -507,9 +508,9 @@ RUN pip install --upgrade pip && \
   python -c 'from scdataloader.utils import populate_my_ontology; populate_my_ontology()'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scprint"
-LABEL org.opencontainers.image.created="2025-01-09T16:39:22Z"
+LABEL org.opencontainers.image.created="2025-01-16T11:02:12Z"
 LABEL org.opencontainers.image.source="https://github.com/cantinilab/scPRINT"
-LABEL org.opencontainers.image.revision="411f6777a671ac671b6b4579ab0d369d8d12dedf"
+LABEL org.opencontainers.image.revision="475f0918e971f2630443e8b934ffce41b26bcf96"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
