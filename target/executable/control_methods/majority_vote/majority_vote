@@ -474,9 +474,9 @@ function ViashDockerfile {
 FROM openproblems/base_python:1.0.0
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component control_methods majority_vote"
-LABEL org.opencontainers.image.created="2025-01-17T14:29:37Z"
+LABEL org.opencontainers.image.created="2025-01-17T17:01:59Z"
 LABEL org.opencontainers.image.source="https://github.com/openproblems-bio/task_label_projection"
-LABEL org.opencontainers.image.revision="76bb27dd14e0456ab57d8dd14d53b6739e0accfe"
+LABEL org.opencontainers.image.revision="09c5993749b4c4ac9f7d26961578e307b35b88a0"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

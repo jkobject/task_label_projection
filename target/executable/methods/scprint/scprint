@@ -508,9 +508,9 @@ RUN pip install --upgrade pip && \
   python -c 'from scdataloader.utils import populate_my_ontology; populate_my_ontology()'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scprint"
-LABEL org.opencontainers.image.created="2025-01-17T14:29:37Z"
+LABEL org.opencontainers.image.created="2025-01-17T17:01:59Z"
 LABEL org.opencontainers.image.source="https://github.com/cantinilab/scPRINT"
-LABEL org.opencontainers.image.revision="76bb27dd14e0456ab57d8dd14d53b6739e0accfe"
+LABEL org.opencontainers.image.revision="09c5993749b4c4ac9f7d26961578e307b35b88a0"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1156,6 +1156,9 @@ dep = {
 ## VIASH END
 
 print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
+
+# Set suggested PyTorch environment variable
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 print("\\n>>> Reading input data...", flush=True)
 input_train = ad.read_h5ad(par['input_train'])

@@ -2892,7 +2892,7 @@ meta = [
                   "name" : "dataset_organism",
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
-                  "required" : false
+                  "required" : true
                 },
                 {
                   "type" : "string",
@@ -2988,7 +2988,7 @@ meta = [
                   "name" : "dataset_organism",
                   "type" : "string",
                   "description" : "The organism of the sample in the dataset.",
-                  "required" : false
+                  "required" : true
                 },
                 {
                   "type" : "string",
@@ -3131,7 +3131,7 @@ meta = [
           "midtime",
           "midmem",
           "midcpu",
-          "gpu"
+          "biggpu"
         ],
         "tag" : "$id"
       },
@@ -3190,7 +3190,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_fine_tuned",
     "viash_version" : "0.9.0",
-    "git_commit" : "76bb27dd14e0456ab57d8dd14d53b6739e0accfe",
+    "git_commit" : "09c5993749b4c4ac9f7d26961578e307b35b88a0",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -4130,7 +4130,7 @@ meta["defaults"] = [
     "midtime",
     "midmem",
     "midcpu",
-    "gpu"
+    "biggpu"
   ],
   "tag" : "$id"
 }'''),
