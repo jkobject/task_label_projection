@@ -116,7 +116,7 @@ Data structure:
 | `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["dataset_organism"]` | `string` | The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
@@ -179,7 +179,7 @@ Data structure:
 | `uns["dataset_reference"]` | `string` | (*Optional*) Bibtex reference of the paper in which the dataset was published. |
 | `uns["dataset_summary"]` | `string` | Short description of the dataset. |
 | `uns["dataset_description"]` | `string` | Long description of the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["dataset_organism"]` | `string` | The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
@@ -219,7 +219,7 @@ Data structure:
 | `layers["counts"]` | `integer` | Raw counts. |
 | `layers["normalized"]` | `double` | Normalized counts. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["dataset_organism"]` | `string` | The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
@@ -260,7 +260,7 @@ Data structure:
 | `layers["counts"]` | `integer` | Raw counts. |
 | `layers["normalized"]` | `double` | Normalized counts. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
-| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
+| `uns["dataset_organism"]` | `string` | The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
