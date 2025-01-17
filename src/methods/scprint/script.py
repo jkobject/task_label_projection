@@ -21,6 +21,9 @@ meta = {"name": "scprint"}
 
 print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
 
+# Set suggested PyTorch environment variable
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 print("\n>>> Reading input data...", flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
