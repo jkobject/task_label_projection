@@ -19,7 +19,7 @@ par = {
   "n_hvg": 3000,
 }
 meta = {
-  'name': 'scgpt'
+  'name': 'scgpt_zero_shot'
 }
 ## VIASH END
 

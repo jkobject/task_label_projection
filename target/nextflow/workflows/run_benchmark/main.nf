@@ -3326,6 +3326,12 @@ meta = [
       }
     },
     {
+      "name" : "methods/scgpt_fine_tuned",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/scgpt_zero_shot",
       "repository" : {
         "type" : "local"
@@ -3442,7 +3448,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "475f0918e971f2630443e8b934ffce41b26bcf96",
+    "git_commit" : "76bb27dd14e0456ab57d8dd14d53b6739e0accfe",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3541,6 +3547,7 @@ include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.n
 include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/naive_bayes/main.nf"
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
+include { scgpt_fine_tuned } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_fine_tuned/main.nf"
 include { scgpt_zero_shot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zero_shot/main.nf"
 include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
 include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
@@ -3574,6 +3581,10 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+
+  scgpt_fine_tuned.run(
+    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  ),
   scgpt_zero_shot.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
