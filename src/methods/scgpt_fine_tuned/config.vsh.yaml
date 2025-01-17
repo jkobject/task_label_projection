@@ -25,6 +25,7 @@ arguments:
 resources:
   - type: python_script
     path: script.py
+  - path: functions.py
 
 engines:
   - type: docker
