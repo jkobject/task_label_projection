@@ -433,7 +433,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "205fe85c676c4b4b160f2b9f74a3ebebb504dc93"
+  git_commit: "251e2c25372db5e8e95bf55479985f5c3dbd66c5"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"

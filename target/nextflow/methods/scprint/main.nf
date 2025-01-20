@@ -3245,7 +3245,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.0",
-    "git_commit" : "205fe85c676c4b4b160f2b9f74a3ebebb504dc93",
+    "git_commit" : "251e2c25372db5e8e95bf55479985f5c3dbd66c5",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3551,7 +3551,7 @@ preprocessor = Preprocessor(
 adata_test = preprocessor(adata_test)
 
 print("\\\\n>>> Embedding test data...", flush=True)
-embedder = Embedder(
+embedder = scprint.tasks.Embedder(
     batch_size=32,
     how="random expr",
     max_len=4000,

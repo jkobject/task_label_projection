@@ -185,7 +185,7 @@ preprocessor = Preprocessor(
 adata_test = preprocessor(adata_test)
 
 print("\n>>> Embedding test data...", flush=True)
-embedder = Embedder(
+embedder = scprint.tasks.Embedder(
     batch_size=32,
     how="random expr",
     max_len=4000,
