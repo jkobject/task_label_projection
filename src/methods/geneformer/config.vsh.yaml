@@ -15,12 +15,12 @@ info:
       warmup_steps: 1
       max_trials: 1
 
-references: 
-  doi: 
+references:
+  doi:
     - 10.1038/s41586-023-06139-9
     - 10.1101/2024.08.16.608180
 
-links: 
+links:
   documentation: https://geneformer.readthedocs.io/en/latest/index.html
   repository: https://huggingface.co/ctheodoris/Geneformer
 
@@ -28,7 +28,11 @@ arguments:
   - name: --model
     type: string
     description: String representing the Geneformer model to use
-    choices: ["gf-6L-30M-i2048", "gf-12L-30M-i2048", "gf-12L-95M-i4096", "gf-20L-95M-i4096"]
+    choices:
+      - gf-6L-30M-i2048
+      - gf-12L-30M-i2048
+      - gf-12L-95M-i4096
+      - gf-20L-95M-i4096
     default: "gf-12L-95M-i4096"
   # training parameters
   - name: --num_train_epochs
@@ -52,9 +56,9 @@ engines:
     setup:
       - type: python
         pip:
-        - pyarrow<15.0.0a0,>=14.0.1
-        - huggingface_hub
-        - git+https://huggingface.co/ctheodoris/Geneformer.git
+          - pyarrow<15.0.0a0,>=14.0.1
+          - huggingface_hub
+          - git+https://huggingface.co/ctheodoris/Geneformer.git
 
 runners:
   - type: executable
