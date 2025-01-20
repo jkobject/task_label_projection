@@ -38,6 +38,9 @@ if input_train.uns["dataset_organism"] != "homo_sapiens":
         f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
     )
 
+# check whether genes are ensembl ids
+input_train.var_names = input_train.var["feature_id"]
+input_test.var_names = input_test.var["feature_id"]
 is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:
     exit_non_applicable(
