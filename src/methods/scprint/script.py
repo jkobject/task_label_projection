@@ -4,6 +4,7 @@ from huggingface_hub import hf_hub_download
 import scprint
 import torch
 import os
+import sys
 import numpy as np
 from scipy.spatial import distance
 from scipy.optimize import linear_sum_assignment
@@ -18,6 +19,9 @@ par = {
 }
 meta = {"name": "scprint"}
 ## VIASH END
+
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
 
 print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
 
@@ -35,8 +39,9 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
     input_train.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
     input_test.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
 else:
-    raise ValueError(
-        f"scPRINT requires human or mouse data, not '{input.uns['dataset_organism']}'"
+    exit_non_applicable(
+        f"scPRINT can only be used with human data "
+        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
     )
 
 adata = input_train.copy()
