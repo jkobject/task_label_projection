@@ -3326,13 +3326,13 @@ meta = [
       }
     },
     {
-      "name" : "methods/scgpt_fine_tuned",
+      "name" : "methods/scgpt_finetuned",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/scgpt_zero_shot",
+      "name" : "methods/scgpt_zeroshot",
       "repository" : {
         "type" : "local"
       }
@@ -3448,7 +3448,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "a20b51bed2f25400b96ebd00356746c4cc477195",
+    "git_commit" : "1e7cafe950930032da85c0bbed3077ea9d1f1dd8",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3547,8 +3547,8 @@ include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.n
 include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/naive_bayes/main.nf"
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
-include { scgpt_fine_tuned } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_fine_tuned/main.nf"
-include { scgpt_zero_shot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zero_shot/main.nf"
+include { scgpt_finetuned } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_finetuned/main.nf"
+include { scgpt_zeroshot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zeroshot/main.nf"
 include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
 include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
 include { scprint } from "${meta.resources_dir}/../../../nextflow/methods/scprint/main.nf"
@@ -3582,10 +3582,10 @@ methods = [
   scanvi,
   scanvi_scarches,
 
-  scgpt_fine_tuned.run(
+  scgpt_finetuned.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
-  scgpt_zero_shot.run(
+  scgpt_zeroshot.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
   scimilarity.run(

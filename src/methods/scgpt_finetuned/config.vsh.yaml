@@ -1,22 +1,27 @@
 __merge__: ../../api/base_method.yaml
 
-name: scgpt_fine_tuned
-label: scGPT fine tuned
+name: scgpt_finetuned
+label: scGPT (fine-tuned)
 summary: "Cell-type annotation by fine-tuning on a pre-trained scGPT model."
 description: |
   scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Here, we fine-tune a pre-trained model on a reference dataset using the hyper-parameter recommenations for the cell-type task and then infer cell-types for the unlabelled cells in a query dataset.
-    
-references: 
+
+references:
   doi: 10.1038/s41592-024-02201-0
 
-links: 
+links:
   documentation: https://scgpt.readthedocs.io/en/latest/
   repository: https://github.com/bowang-lab/scGPT
 
 info:
   preferred_normalization: counts
 
-arguments: 
+arguments:
+  - name: --model_name
+    type: string
+    description: String giving the name of the scGPT model to use
+    choices: ["scGPT_human", "scGPT_CP"]
+    default: "scGPT_human"
   - name: --model
     type: file
     description: Path to the directory containing the scGPT model specified by model_name or a .zip/.tar.gz archive to extract. If not given the model will be downloaded.
@@ -26,6 +31,7 @@ resources:
   - type: python_script
     path: script.py
   - path: functions.py
+  - path: /src/utils/exit_codes.py
 
 engines:
   - type: docker
@@ -41,6 +47,7 @@ engines:
 
 runners:
   - type: executable
+    # docker_run_args: "--gpus all"
   - type: nextflow
     directives:
       label: [midtime, midmem, midcpu, biggpu]

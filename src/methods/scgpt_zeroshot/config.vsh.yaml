@@ -1,7 +1,7 @@
 __merge__: ../../api/base_method.yaml
 
-name: scgpt_zero_shot
-label: scGPT zero-shot
+name: scgpt_zeroshot
+label: scGPT (zero shot)
 summary: "Reference mapping using cell embedding by pretrained scGPT model."
 description: |
   scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search. 

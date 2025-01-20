@@ -19,10 +19,10 @@ methods = [
   scanvi,
   scanvi_scarches,
 
-  scgpt_fine_tuned.run(
+  scgpt_finetuned.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
-  scgpt_zero_shot.run(
+  scgpt_zeroshot.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
   scimilarity.run(

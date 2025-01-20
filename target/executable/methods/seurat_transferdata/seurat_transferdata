@@ -477,9 +477,9 @@ RUN Rscript -e 'if (!requireNamespace("remotes", quietly = TRUE)) install.packag
   Rscript -e 'remotes::install_cran(c("Matrix>=1.5.3", "Seurat", "rlang"), repos = "https://cran.rstudio.com")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods seurat_transferdata"
-LABEL org.opencontainers.image.created="2025-01-20T20:38:29Z"
+LABEL org.opencontainers.image.created="2025-01-20T23:21:12Z"
 LABEL org.opencontainers.image.source="https://github.com/satijalab/seurat"
-LABEL org.opencontainers.image.revision="a20b51bed2f25400b96ebd00356746c4cc477195"
+LABEL org.opencontainers.image.revision="1e7cafe950930032da85c0bbed3077ea9d1f1dd8"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
