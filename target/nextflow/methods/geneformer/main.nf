@@ -3074,6 +3074,33 @@ meta = [
           "direction" : "input",
           "multiple" : false,
           "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--num_train_epochs",
+          "description" : "Number of epochs to train the model",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--warmup_steps",
+          "description" : "Number of warmup steps for the learning rate scheduler",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--max_trials",
+          "description" : "Number of trials to run",
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
         }
       ]
     }
@@ -3097,10 +3124,27 @@ meta = [
       "type" : "python_script",
       "path" : "/common/component_tests/check_config.py",
       "is_executable" : true
+    },
+    {
+      "type" : "python_script",
+      "path" : "/common/component_tests/run_and_check_output.py",
+      "is_executable" : true
+    },
+    {
+      "type" : "file",
+      "path" : "/resources_test/task_label_projection/cxg_immune_cell_atlas",
+      "dest" : "resources_test/task_label_projection/cxg_immune_cell_atlas"
     }
   ],
   "info" : {
     "preferred_normalization" : "counts",
+    "test_setup" : {
+      "run" : {
+        "num_train_epochs" : 1,
+        "warmup_steps" : 1,
+        "max_trials" : 1
+      }
+    },
     "type" : "method",
     "type_info" : {
       "label" : "Method",
@@ -3197,7 +3241,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/geneformer",
     "viash_version" : "0.9.0",
-    "git_commit" : "eb4b6a310f5485b0eec9690a9766b92b56e02274",
+    "git_commit" : "2765a658deb2d5d5ae7fbe9bae81890d1452e400",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3296,7 +3340,11 @@ import os
 import sys
 from tempfile import TemporaryDirectory
 import anndata as ad
-from geneformer import Classifier, TranscriptomeTokenizer, DataCollatorForCellClassification
+from geneformer import (
+    Classifier,
+    TranscriptomeTokenizer,
+    DataCollatorForCellClassification,
+)
 from huggingface_hub import hf_hub_download
 import numpy as np
 import datasets
@@ -3309,7 +3357,10 @@ par = {
   'input_train': $( if [ ! -z ${VIASH_PAR_INPUT_TRAIN+x} ]; then echo "r'${VIASH_PAR_INPUT_TRAIN//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'input_test': $( if [ ! -z ${VIASH_PAR_INPUT_TEST+x} ]; then echo "r'${VIASH_PAR_INPUT_TEST//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'output': $( if [ ! -z ${VIASH_PAR_OUTPUT+x} ]; then echo "r'${VIASH_PAR_OUTPUT//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
-  'model': $( if [ ! -z ${VIASH_PAR_MODEL+x} ]; then echo "r'${VIASH_PAR_MODEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi )
+  'model': $( if [ ! -z ${VIASH_PAR_MODEL+x} ]; then echo "r'${VIASH_PAR_MODEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
+  'num_train_epochs': $( if [ ! -z ${VIASH_PAR_NUM_TRAIN_EPOCHS+x} ]; then echo "int(r'${VIASH_PAR_NUM_TRAIN_EPOCHS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
+  'warmup_steps': $( if [ ! -z ${VIASH_PAR_WARMUP_STEPS+x} ]; then echo "int(r'${VIASH_PAR_WARMUP_STEPS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
+  'max_trials': $( if [ ! -z ${VIASH_PAR_MAX_TRIALS+x} ]; then echo "int(r'${VIASH_PAR_MAX_TRIALS//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3342,59 +3393,64 @@ n_processors = os.cpu_count()
 sys.path.append(meta["resources_dir"])
 from exit_codes import exit_non_applicable
 
-print('>>> Reading input files', flush=True)
-input_train = ad.read_h5ad(par['input_train'])
-input_test = ad.read_h5ad(par['input_test'])
+print(">>> Reading input files", flush=True)
+input_train = ad.read_h5ad(par["input_train"])
+input_test = ad.read_h5ad(par["input_test"])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  exit_non_applicable(
-    f"Geneformer can only be used with human data "
-    f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
-  )
+    exit_non_applicable(
+        f"Geneformer can only be used with human data "
+        f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
+    )
 
+# check whether genes are ensembl ids
+input_train.var_names = input_train.var["feature_id"]
+input_test.var_names = input_test.var["feature_id"]
 is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:
-  raise ValueError(f"Geneformer requires input_train.var_names to contain ENSEMBL gene ids")
+    exit_non_applicable(
+        f"Geneformer requires input_train.var_names to contain ENSEMBL gene ids"
+    )
 
 print(f">>> Getting settings for model '{par['model']}'...", flush=True)
 model_split = par["model"].split("-")
 model_details = {
-  "layers": model_split[1],
-  "dataset": model_split[2],
-  "input_size": int(model_split[3][1:]),
+    "layers": model_split[1],
+    "dataset": model_split[2],
+    "input_size": int(model_split[3][1:]),
 }
 print(model_details, flush=True)
 
 print(">>> Getting model dictionary files...", flush=True)
 if model_details["dataset"] == "95M":
-  dictionaries_subfolder = "geneformer"
+    dictionaries_subfolder = "geneformer"
 elif model_details["dataset"] == "30M":
-  dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
+    dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
 else:
-  raise ValueError(f"Invalid model dataset: {model_details['dataset']}")
+    raise ValueError(f"Invalid model dataset: {model_details['dataset']}")
 print(f"Dictionaries subfolder: '{dictionaries_subfolder}'")
 
 dictionary_files = {
-  "ensembl_mapping": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=dictionaries_subfolder,
-    filename=f"ensembl_mapping_dict_gc{model_details['dataset']}.pkl",
-  ),
-  "gene_median": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=dictionaries_subfolder,
-    filename=f"gene_median_dictionary_gc{model_details['dataset']}.pkl",
-  ),
-  "gene_name_id": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=dictionaries_subfolder,
-    filename=f"gene_name_id_dict_gc{model_details['dataset']}.pkl",
-  ),
-  "token": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=dictionaries_subfolder,
-    filename=f"token_dictionary_gc{model_details['dataset']}.pkl",
-  ),
+    "ensembl_mapping": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=dictionaries_subfolder,
+        filename=f"ensembl_mapping_dict_gc{model_details['dataset']}.pkl",
+    ),
+    "gene_median": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=dictionaries_subfolder,
+        filename=f"gene_median_dictionary_gc{model_details['dataset']}.pkl",
+    ),
+    "gene_name_id": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=dictionaries_subfolder,
+        filename=f"gene_name_id_dict_gc{model_details['dataset']}.pkl",
+    ),
+    "token": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=dictionaries_subfolder,
+        filename=f"token_dictionary_gc{model_details['dataset']}.pkl",
+    ),
 }
 
 print(">>> Creating working directory...", flush=True)
@@ -3417,16 +3473,16 @@ print(f"Working directory: '{work_dir.name}'", flush=True)
 
 print(f">>> Getting model files for model '{par['model']}'...", flush=True)
 model_files = {
-  "model": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=par["model"],
-    filename="model.safetensors",
-  ),
-  "config": hf_hub_download(
-    repo_id="ctheodoris/Geneformer",
-    subfolder=par["model"],
-    filename="config.json",
-  ),
+    "model": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=par["model"],
+        filename="model.safetensors",
+    ),
+    "config": hf_hub_download(
+        repo_id="ctheodoris/Geneformer",
+        subfolder=par["model"],
+        filename="config.json",
+    ),
 }
 model_dir = os.path.dirname(model_files["model"])
 
@@ -3443,68 +3499,115 @@ input_test.var["ensembl_id"] = input_test.var["feature_id"]
 input_test.obs["n_counts"] = input_test.layers["counts"].sum(axis=1)
 input_test.write_h5ad(os.path.join(input_test_dir, "input_test.h5ad"))
 
+def tryParallelFunction(fun, label):
+    try:
+        fun(nproc=n_processors)
+    except RuntimeError as e:
+        # retry with nproc=1 if error message contains "One of the subprocesses has abruptly died"
+        if "subprocess" in str(e) and "died" in str(e):
+            print(f"{label} failed. Error message: {e}", flush=True)
+            print(f"Retrying with nproc=1", flush=True)
+            fun(nproc=1)
+        else:
+            raise e
+
 print(">>> Tokenizing train data...", flush=True)
 special_token = model_details["dataset"] == "95M"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
-tokenizer = TranscriptomeTokenizer(
-  custom_attr_name_dict={"celltype": "celltype"},
-  nproc=n_processors,
-  model_input_size=model_details["input_size"],
-  special_token=special_token,
-  gene_median_file=dictionary_files["gene_median"],
-  token_dictionary_file=dictionary_files["token"],
-  gene_mapping_file=dictionary_files["ensembl_mapping"],
-)
-tokenizer.tokenize_data(input_train_dir, tokenized_train_dir, "tokenized", file_format="h5ad")
+
+def tokenize_train(nproc):
+    tokenizer = TranscriptomeTokenizer(
+        custom_attr_name_dict={"celltype": "celltype"},
+        nproc=nproc,
+        model_input_size=model_details["input_size"],
+        special_token=special_token,
+        gene_median_file=dictionary_files["gene_median"],
+        token_dictionary_file=dictionary_files["token"],
+        gene_mapping_file=dictionary_files["ensembl_mapping"],
+    )
+    tokenizer.tokenize_data(
+        input_train_dir, tokenized_train_dir, "tokenized", file_format="h5ad"
+    )
+    return tokenizer
+
+
+tokenizer = tryParallelFunction(tokenize_train, "Tokenizing train data")
 
 print(">>> Tokenizing test data...", flush=True)
 special_token = model_details["dataset"] == "95M"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
-tokenizer = TranscriptomeTokenizer(
-  nproc=n_processors,
-  model_input_size=model_details["input_size"],
-  special_token=special_token,
-  gene_median_file=dictionary_files["gene_median"],
-  token_dictionary_file=dictionary_files["token"],
-  gene_mapping_file=dictionary_files["ensembl_mapping"],
-)
-tokenizer.tokenize_data(input_test_dir, tokenized_test_dir, "tokenized", file_format="h5ad")
 
-print(">>> Fine-tuning pre-trained geneformer model for cell state classification...", flush=True)
-cc = Classifier(
-  classifier="cell",
-  cell_state_dict = {"state_key": "celltype", "states": "all"},
-  nproc=n_processors,
-  token_dictionary_file=dictionary_files["token"],
-  num_crossval_splits=1,
-  split_sizes={"train": 0.9, "valid": 0.1, "test": 0.0},
-)
+def tokenize_test(nproc):
+    tokenizer = TranscriptomeTokenizer(
+        model_input_size=model_details["input_size"],
+        special_token=special_token,
+        gene_median_file=dictionary_files["gene_median"],
+        token_dictionary_file=dictionary_files["token"],
+        gene_mapping_file=dictionary_files["ensembl_mapping"],
+        nproc=nproc,
+    )
+    tokenizer.tokenize_data(
+        input_test_dir, tokenized_test_dir, "tokenized", file_format="h5ad"
+    )
+    return tokenizer
 
-cc.prepare_data(
-  input_data_file=os.path.join(tokenized_train_dir, "tokenized.dataset"),
-  output_directory=classifier_train_dir,
-  output_prefix="classifier",
-)
 
-train_data = datasets.load_from_disk(classifier_train_dir + "/classifier_labeled.dataset")
+tokenizer = tryParallelFunction(tokenize_test, "Tokenizing test data")
+print(">>> Fine-tuning pre-trained geneformer model...", flush=True)
 
-cc.train_classifier(
-  model_directory=model_dir,
-  num_classes=num_types,
-  train_data=train_data,
-  eval_data=None,
-  output_directory=classifier_fine_tuned_dir,
-  predict=False
+def train_classifier(nproc):
+    training_args={}
+    if par["num_train_epochs"]:
+        training_args["num_train_epochs"] = par["num_train_epochs"]
+    if par["warmup_steps"]:
+        training_args["warmup_steps"] = par["warmup_steps"]
+    
+    cc = Classifier(
+        classifier="cell",
+        cell_state_dict={"state_key": "celltype", "states": "all"},
+        nproc=nproc,
+        token_dictionary_file=dictionary_files["token"],
+        num_crossval_splits=1,
+        split_sizes={"train": 0.9, "valid": 0.1, "test": 0.0},
+        training_args=training_args
+    )
+
+    cc.prepare_data(
+        input_data_file=os.path.join(tokenized_train_dir, "tokenized.dataset"),
+        output_directory=classifier_train_dir,
+        output_prefix="classifier",
+        max_trials=par["max_trials"],
+    )
+
+    train_data = datasets.load_from_disk(
+        classifier_train_dir + "/classifier_labeled.dataset"
+    )
+
+    cc.train_classifier(
+        model_directory=model_dir,
+        num_classes=num_types,
+        train_data=train_data,
+        eval_data=None,
+        output_directory=classifier_fine_tuned_dir,
+        predict=False,
+    )
+
+    return cc
+
+
+cc = tryParallelFunction(
+    train_classifier,
+    "Fine-tuning pre-trained geneformer model",
 )
 
 print(">>> Generating predictions...", flush=True)
 
 # dictionary mapping labels from classifier to cell types
 with open(f"{classifier_train_dir}/classifier_id_class_dict.pkl", "rb") as f:
-  id_class_dict = pickle.load(f)
+    id_class_dict = pickle.load(f)
 
 with open(dictionary_files["token"], "rb") as f:
-  token_dict = pickle.load(f)
+    token_dict = pickle.load(f)
 
 # Load fine-tuned model
 model = BertForSequenceClassification.from_pretrained(classifier_fine_tuned_dir)
@@ -3513,24 +3616,30 @@ test_data = datasets.load_from_disk(tokenized_test_dir + "/tokenized.dataset")
 test_data = test_data.add_column("label", [0] * len(test_data))
 
 # Get predictions
-trainer = Trainer(model=model, data_collator=DataCollatorForCellClassification(token_dictionary=token_dict))
+trainer = Trainer(
+    model=model,
+    data_collator=DataCollatorForCellClassification(token_dictionary=token_dict),
+)
 predictions = trainer.predict(test_data)
 
 # Select the most likely cell type based on the probability vector from the predictions of each cell
 predicted_label_ids = np.argmax(predictions.predictions, axis=1)
-predicted_logits = [predictions.predictions[i][predicted_label_ids[i]] for i in range(len(predicted_label_ids))]
-input_test.obs['label_pred'] = [id_class_dict[p] for p in predicted_label_ids]
+predicted_logits = [
+    predictions.predictions[i][predicted_label_ids[i]]
+    for i in range(len(predicted_label_ids))
+]
+input_test.obs["label_pred"] = [id_class_dict[p] for p in predicted_label_ids]
 
 print(">>> Write output AnnData to file", flush=True)
 output = ad.AnnData(
-  obs=input_test.obs[["label_pred"]],
-  uns={
-    'method_id': meta['name'],
-    'dataset_id': input_test.uns['dataset_id'],
-    'normalization_id': input_test.uns['normalization_id']
-  }
+    obs=input_test.obs[["label_pred"]],
+    uns={
+        "method_id": meta["name"],
+        "dataset_id": input_test.uns["dataset_id"],
+        "normalization_id": input_test.uns["normalization_id"],
+    },
 )
-output.write_h5ad(par['output'], compression='gzip')
+output.write_h5ad(par["output"], compression="gzip")
 VIASHMAIN
 python -B "$tempscript"
 '''
