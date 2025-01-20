@@ -23,6 +23,9 @@ meta = {
 }
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 # Functions to perform similarity search when faiss is not used
 def l2_sim(a, b):
   sims = -np.linalg.norm(a - b, axis=1)
@@ -38,12 +41,10 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  print(
+  exit_non_applicable(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \"{input_train.uns['dataset_organism']}\")",
-    flush=True
+    f"(dataset_organism is \"{input_train.uns['dataset_organism']}\")"
   )
-  sys.exit(99)
 
 if par["model"] is None:
   print(f"\n>>> Downloading '{par['model_name']}' model...", flush=True)
