@@ -142,17 +142,15 @@ scgpt.utils.add_file_handler(logger, "run.log")
 ### Load and pre-process data
 
 input_train.obs["celltype"] = input_train.obs["label"].astype("category")
-data_is_raw = False
-filter_gene_by_counts = False
 
 # Make the batch category column
 num_types = len(input_train.obs["celltype"].unique())
 id2type = dict(enumerate(input_train.obs["celltype"].astype("category").cat.categories))
 input_train.obs["celltype_id"] = input_train.obs["celltype"].astype("category").cat.codes.values
 
-model_config_file = model_dir / "args.json"
-model_file = model_dir / "best_model.pt"
-vocab_file = model_dir / "vocab.json"
+model_config_file = f"{model_dir}/args.json"
+model_file = f"{model_dir}/best_model.pt"
+vocab_file = f"{model_dir}/vocab.json"
 vocab = scgpt.tokenizer.gene_tokenizer.GeneVocab.from_file(vocab_file)
 for token in special_tokens:
   if token not in vocab:
@@ -190,14 +188,14 @@ n_layers_cls = model_configs["n_layers_cls"]
 
 preprocessor = scgpt.preprocess.Preprocessor(
   use_key="counts",  # the key in input_train.layers to use as raw data
-  filter_gene_by_counts=filter_gene_by_counts, 
+  filter_gene_by_counts=False, 
   filter_cell_by_counts=False, 
   normalize_total=1e4,  # whether to normalize the raw data and to what sum
   result_normed_key="X_normed",  # the key in input_train.layers to store the normalized data
-  log1p=data_is_raw,  # whether to log1p the normalized data
+  log1p=True,  # whether to log1p the normalized data
   result_log1p_key="X_log1p",
   subset_hvg=False,  # whether to subset the raw data to highly variable genes
-  hvg_flavor="seurat_v3" if data_is_raw else "cell_ranger",
+  hvg_flavor="seurat_v3",
   binning=hyperparameters["n_bins"],  # whether to bin the raw data and to what number of bins
   result_binned_key="X_binned",  # the key in input_train.layers to store the binned data
 )
