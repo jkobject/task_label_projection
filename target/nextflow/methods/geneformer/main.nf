@@ -3083,6 +3083,10 @@ meta = [
       "type" : "python_script",
       "path" : "script.py",
       "is_executable" : true
+    },
+    {
+      "type" : "file",
+      "path" : "/src/utils/exit_codes.py"
     }
   ],
   "label" : "Geneformer",
@@ -3193,7 +3197,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/geneformer",
     "viash_version" : "0.9.0",
-    "git_commit" : "09c5993749b4c4ac9f7d26961578e307b35b88a0",
+    "git_commit" : "eb4b6a310f5485b0eec9690a9766b92b56e02274",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3335,17 +3339,18 @@ dep = {
 
 n_processors = os.cpu_count()
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 print('>>> Reading input files', flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  print(
+  exit_non_applicable(
     f"Geneformer can only be used with human data "
-    f"(dataset_organism == '{input_train.uns['dataset_organism']}')",
-    flush=True
+    f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
   )
-  sys.exit(99)
 
 is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:

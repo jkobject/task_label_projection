@@ -498,9 +498,9 @@ RUN pip install --upgrade pip && \
 RUN pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scgpt_zero_shot"
-LABEL org.opencontainers.image.created="2025-01-17T17:01:59Z"
+LABEL org.opencontainers.image.created="2025-01-20T13:26:57Z"
 LABEL org.opencontainers.image.source="https://github.com/bowang-lab/scGPT"
-LABEL org.opencontainers.image.revision="09c5993749b4c4ac9f7d26961578e307b35b88a0"
+LABEL org.opencontainers.image.revision="eb4b6a310f5485b0eec9690a9766b92b56e02274"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1185,6 +1185,9 @@ dep = {
 
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 # Functions to perform similarity search when faiss is not used
 def l2_sim(a, b):
   sims = -np.linalg.norm(a - b, axis=1)
@@ -1200,12 +1203,10 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  print(
+  exit_non_applicable(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")",
-    flush=True
+    f"(dataset_organism is \\"{input_train.uns['dataset_organism']}\\")"
   )
-  sys.exit(99)
 
 if par["model"] is None:
   print(f"\\n>>> Downloading '{par['model_name']}' model...", flush=True)

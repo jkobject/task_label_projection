@@ -22,6 +22,9 @@ meta = {
 }
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 print(f"====== SCimilarity version {scimilarity.__version__} ======", flush=True)
 
 print("\n>>> Reading training data...", flush=True)
@@ -30,12 +33,10 @@ input_train = ad.read_h5ad(par['input_train'])
 print(input_train, flush=True)
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-    print(
+    exit_non_applicable(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")",
-        flush=True
+        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
     )
-    sys.exit(99)
 
 print("\n>>> Reading test data...", flush=True)
 print(f"Test H5AD file: '{par['input_test']}'", flush=True)

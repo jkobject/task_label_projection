@@ -4,6 +4,7 @@ from huggingface_hub import hf_hub_download
 import scprint
 import torch
 import os
+import sys
 import numpy as np
 from scipy.spatial import distance
 from scipy.optimize import linear_sum_assignment
@@ -18,6 +19,9 @@ par = {
 }
 meta = {"name": "scprint"}
 ## VIASH END
+
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
 
 print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
 
@@ -35,8 +39,9 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
     input_train.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
     input_test.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
 else:
-    raise ValueError(
-        f"scPRINT requires human or mouse data, not '{input.uns['dataset_organism']}'"
+    exit_non_applicable(
+        f"scPRINT can only be used with human data "
+        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
     )
 
 adata = input_train.copy()
@@ -48,7 +53,7 @@ adata_test.X = adata_test.layers["counts"]
 print("\n>>> Preprocessing train data...", flush=True)
 preprocessor = Preprocessor(
     # Lower this threshold for test datasets
-    min_valid_genes_id=1000 if input_train.n_vars < 2000 else 10000,
+    min_valid_genes_id=min(0.9 * adata.n_vars, 10000), # 90% of features up to 10,000
     # Turn off cell filtering to return results for all cells
     filter_cell_by_counts=False,
     min_nnz_genes=False,

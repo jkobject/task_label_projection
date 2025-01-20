@@ -483,9 +483,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "git+https://github.com/Genentech/scimilarity"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scimilarity"
-LABEL org.opencontainers.image.created="2025-01-17T17:02:00Z"
+LABEL org.opencontainers.image.created="2025-01-20T13:26:58Z"
 LABEL org.opencontainers.image.source="https://github.com/Genentech/scimilarity"
-LABEL org.opencontainers.image.revision="09c5993749b4c4ac9f7d26961578e307b35b88a0"
+LABEL org.opencontainers.image.revision="eb4b6a310f5485b0eec9690a9766b92b56e02274"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -1106,6 +1106,9 @@ dep = {
 
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 print(f"====== SCimilarity version {scimilarity.__version__} ======", flush=True)
 
 print("\\n>>> Reading training data...", flush=True)
@@ -1114,12 +1117,10 @@ input_train = ad.read_h5ad(par['input_train'])
 print(input_train, flush=True)
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-    print(
+    exit_non_applicable(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \\"{input_train.uns['dataset_organism']}\\")",
-        flush=True
+        f"(dataset_organism == \\"{input_train.uns['dataset_organism']}\\")"
     )
-    sys.exit(99)
 
 print("\\n>>> Reading test data...", flush=True)
 print(f"Test H5AD file: '{par['input_test']}'", flush=True)

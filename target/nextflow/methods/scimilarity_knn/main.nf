@@ -3076,6 +3076,10 @@ meta = [
       "type" : "python_script",
       "path" : "script.py",
       "is_executable" : true
+    },
+    {
+      "type" : "file",
+      "path" : "/src/utils/exit_codes.py"
     }
   ],
   "label" : "SCimilarity (kNN)",
@@ -3182,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scimilarity_knn",
     "viash_version" : "0.9.0",
-    "git_commit" : "09c5993749b4c4ac9f7d26961578e307b35b88a0",
+    "git_commit" : "eb4b6a310f5485b0eec9690a9766b92b56e02274",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3321,6 +3325,9 @@ dep = {
 
 ## VIASH END
 
+sys.path.append(meta["resources_dir"])
+from exit_codes import exit_non_applicable
+
 print(f"====== SCimilarity version {scimilarity.__version__} ======", flush=True)
 
 print("\\\\n>>> Reading training data...", flush=True)
@@ -3329,12 +3336,10 @@ input_train = ad.read_h5ad(par['input_train'])
 print(input_train, flush=True)
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-    print(
+    exit_non_applicable(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \\\\"{input_train.uns['dataset_organism']}\\\\")",
-        flush=True
+        f"(dataset_organism == \\\\"{input_train.uns['dataset_organism']}\\\\")"
     )
-    sys.exit(99)
 
 print("\\\\n>>> Reading test data...", flush=True)
 print(f"Test H5AD file: '{par['input_test']}'", flush=True)
