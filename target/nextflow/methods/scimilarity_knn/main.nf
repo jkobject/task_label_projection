@@ -3186,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scimilarity_knn",
     "viash_version" : "0.9.0",
-    "git_commit" : "251e2c25372db5e8e95bf55479985f5c3dbd66c5",
+    "git_commit" : "a20b51bed2f25400b96ebd00356746c4cc477195",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
