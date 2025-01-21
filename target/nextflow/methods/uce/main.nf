@@ -3189,7 +3189,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/uce",
     "viash_version" : "0.9.0",
-    "git_commit" : "1e7cafe950930032da85c0bbed3077ea9d1f1dd8",
+    "git_commit" : "3281a5fb65787996af2929efe48a7239d801d9ea",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

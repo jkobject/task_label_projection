@@ -31,7 +31,10 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 print("\n>>> Reading input data...", flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
+input_test_uns = input_test.uns.copy()
 
+print("\n>>> Preprocessing input data...", flush=True)
+# store organism ontology term id
 if input_train.uns["dataset_organism"] == "homo_sapiens":
     input_train.obs["organism_ontology_term_id"] = "NCBITaxon:9606"
     input_test.obs["organism_ontology_term_id"] = "NCBITaxon:9606"
@@ -44,16 +47,19 @@ else:
         f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
     )
 
-adata = input_train.copy()
-adata.X = adata.layers["counts"]
+# move data
+input_train.X = input_train.layers["counts"]
+input_train.var_names = input_train.var["feature_id"]
+del input_train.layers["counts"]
 
-adata_test = input_test.copy()
-adata_test.X = adata_test.layers["counts"]
+input_test.X = input_test.layers["counts"]
+input_test.var_names = input_test.var["feature_id"]
+del input_test.layers["counts"]
 
-print("\n>>> Preprocessing train data...", flush=True)
+# applying preprocessor
 preprocessor = Preprocessor(
     # Lower this threshold for test datasets
-    min_valid_genes_id=min(0.9 * adata.n_vars, 10000), # 90% of features up to 10,000
+    min_valid_genes_id=min(0.9 * input_train.n_vars, 10000), # 90% of features up to 10,000
     # Turn off cell filtering to return results for all cells
     filter_cell_by_counts=False,
     min_nnz_genes=False,
@@ -61,8 +67,10 @@ preprocessor = Preprocessor(
     # Skip ontology checks
     skip_validate=True,
 )
-adata = preprocessor(adata)
+input_train = preprocessor(input_train)
+input_test = preprocessor(input_test)
 
+# loading model
 model_checkpoint_file = par["model"]
 if model_checkpoint_file is None:
     print(f"\n>>> Downloading '{par['model_name']}' model...", flush=True)
@@ -91,9 +99,9 @@ n_cores_available = len(os.sched_getaffinity(0))
 
 print(f"Using {n_cores_available} worker cores")
 embedder = scprint.tasks.Embedder(
-    batch_size=32,
+    batch_size=par["batch_size"],
     how="random expr",
-    max_len=4000,
+    max_len=par["max_len"],
     add_zero_genes=0,
     num_workers=n_cores_available,
     doclass=True,
@@ -104,7 +112,7 @@ embedder = scprint.tasks.Embedder(
     keep_all_cls_pred=False,
     output_expression="none"
 )
-embedded, _ = embedder(model, adata, cache=False)
+embedded, _ = embedder(model, input_train, cache=False)
 
 print("\n>>> Matching predictions to labels...", flush=True)
 # The labels predicted by scPRINT might be different to those in the dataset
@@ -171,24 +179,12 @@ while not all(pred in matches for pred in predicted_levels):
 
         print(f"{predicted_level: <40}{label_level: <40}", flush=True)
 
-print("\n>>> Preprocessing test data...", flush=True)
-preprocessor = Preprocessor(
-    # Lower this threshold for test datasets
-    min_valid_genes_id=1000 if input_test.n_vars < 2000 else 10000,
-    # Turn off cell filtering to return results for all cells
-    filter_cell_by_counts=False,
-    min_nnz_genes=False,
-    do_postp=False,
-    # Skip ontology checks
-    skip_validate=True,
-)
-adata_test = preprocessor(adata_test)
 
 print("\n>>> Embedding test data...", flush=True)
 embedder = scprint.tasks.Embedder(
-    batch_size=32,
+    batch_size=par["batch_size"],
     how="random expr",
-    max_len=4000,
+    max_len=par["max_len"],
     add_zero_genes=0,
     num_workers=n_cores_available,
     doclass=True,
@@ -199,7 +195,7 @@ embedder = scprint.tasks.Embedder(
     keep_all_cls_pred=False,
     output_expression="none"
 )
-embedded_test, _ = embedder(model, adata_test, cache=False)
+embedded_test, _ = embedder(model, input_test, cache=False)
 
 print("\n>>> Converting predictions to labels...", flush=True)
 input_test.obs["label_pred"] = embedded_test.obs["conv_pred_cell_type_ontology_term_id"].values
@@ -210,8 +206,8 @@ output = ad.AnnData(
   obs=input_test.obs[["label_pred"]],
   uns={
     'method_id': meta['name'],
-    'dataset_id': input_test.uns['dataset_id'],
-    'normalization_id': input_test.uns['normalization_id']
+    'dataset_id': input_test_uns['dataset_id'],
+    'normalization_id': input_test_uns['normalization_id']
   }
 )
 
