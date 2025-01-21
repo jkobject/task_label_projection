@@ -3191,7 +3191,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/knn",
     "viash_version" : "0.9.0",
-    "git_commit" : "3281a5fb65787996af2929efe48a7239d801d9ea",
+    "git_commit" : "b922d8db85e11cc822442fb7f028e2ead1b52060",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

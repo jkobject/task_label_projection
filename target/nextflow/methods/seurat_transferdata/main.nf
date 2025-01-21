@@ -3186,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/seurat_transferdata",
     "viash_version" : "0.9.0",
-    "git_commit" : "3281a5fb65787996af2929efe48a7239d801d9ea",
+    "git_commit" : "b922d8db85e11cc822442fb7f028e2ead1b52060",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3327,6 +3327,9 @@ options(.viash_orig_warn)
 rm(.viash_orig_warn)
 
 ## VIASH END
+
+# increase max size of future globals to 10GB
+options(future.globals.maxSize = 1024 * 1024 * 1024 * 10)
 
 packageVersion("Matrix")
 

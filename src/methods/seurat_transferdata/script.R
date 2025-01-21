@@ -15,6 +15,9 @@ meta <- list(
 )
 ## VIASH END
 
+# increase max size of future globals to 10GB
+options(future.globals.maxSize = 1024 * 1024 * 1024 * 10)
+
 packageVersion("Matrix")
 
 cat(">> Load input data\n")
