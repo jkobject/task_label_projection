@@ -1,4 +1,4 @@
-__merge__: /src/api/base_method.yaml
+__merge__: /src/api/comp_method.yaml
 
 name: scprint
 label: scPRINT
@@ -41,6 +41,11 @@ info:
       model_name: "medium"
     scprint_small:
       model_name: "small"
+  test_setup:
+    run:
+      model_name: small
+      batch_size: 64
+      max_len: 100
 
 arguments:
   - name: "--model_name"
@@ -52,6 +57,14 @@ arguments:
     type: file
     description: Path to the scPRINT model.
     required: false
+  - name: --batch_size
+    type: integer
+    description: The size of the batches to be used in the DataLoader.
+    default: 64
+  - name: --max_len
+    type: integer
+    description: The maximum length of the gene sequence.
+    default: 2000
 
 resources:
   - type: python_script
