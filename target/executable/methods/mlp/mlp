@@ -488,9 +488,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods mlp"
-LABEL org.opencontainers.image.created="2025-01-21T09:17:27Z"
+LABEL org.opencontainers.image.created="2025-01-23T16:38:45Z"
 LABEL org.opencontainers.image.source="https://github.com/scikit-learn/scikit-learn"
-LABEL org.opencontainers.image.revision="b922d8db85e11cc822442fb7f028e2ead1b52060"
+LABEL org.opencontainers.image.revision="f52ca0a9c28a6dc72520871de56ed3102c87c840"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

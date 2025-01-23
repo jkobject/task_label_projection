@@ -3121,7 +3121,7 @@ meta = [
   ],
   "label" : "scGPT (zero shot)",
   "summary" : "Reference mapping using cell embedding by pretrained scGPT model.",
-  "description" : "scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search. \n",
+  "description" : "scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search.\n",
   "test_resources" : [
     {
       "type" : "python_script",
@@ -3169,7 +3169,7 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "midtime",
+          "hightime",
           "midmem",
           "midcpu",
           "gpu",
@@ -3233,7 +3233,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_zeroshot",
     "viash_version" : "0.9.0",
-    "git_commit" : "b922d8db85e11cc822442fb7f028e2ead1b52060",
+    "git_commit" : "f52ca0a9c28a6dc72520871de56ed3102c87c840",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3874,7 +3874,7 @@ meta["defaults"] = [
     "tag" : "build_main"
   },
   "label" : [
-    "midtime",
+    "hightime",
     "midmem",
     "midcpu",
     "gpu",

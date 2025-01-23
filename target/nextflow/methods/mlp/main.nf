@@ -3215,7 +3215,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/mlp",
     "viash_version" : "0.9.0",
-    "git_commit" : "b922d8db85e11cc822442fb7f028e2ead1b52060",
+    "git_commit" : "f52ca0a9c28a6dc72520871de56ed3102c87c840",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

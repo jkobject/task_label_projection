@@ -3125,7 +3125,7 @@ meta = [
   ],
   "label" : "scPRINT",
   "summary" : "scPRINT is a large transformer model built for the inference of gene networks",
-  "description" : "scPRINT is a large transformer model built for the inference of gene networks\n(connections between genes explaining the cell's expression profile) from\nscRNAseq data.\n\nIt uses novel encoding and decoding of the cell expression profile and new\npre-training methodologies to learn a cell model.\n\nscPRINT can be used to perform the following analyses:\n  - expression denoising: increase the resolution of your scRNAseq data\n  - cell embedding: generate a low-dimensional representation of your dataset\n  - label prediction: predict the cell type, disease, sequencer, sex, and\n    ethnicity of your cells\n  - gene network inference: generate a gene network from any cell or cell\n    cluster in your scRNAseq dataset\n\nThis method uses the zero-shot ability of scPRINT for cell type prediction. \nAs some predicted labels are likely to be different to those in the reference \ndataset, we use a combination of exact string matching and iterative linear sum \nassignment to generate a mapping between them using the training data.\n",
+  "description" : "scPRINT is a large transformer model built for the inference of gene networks\n(connections between genes explaining the cell's expression profile) from\nscRNAseq data.\n\nIt uses novel encoding and decoding of the cell expression profile and new\npre-training methodologies to learn a cell model.\n\nscPRINT can be used to perform the following analyses:\n  - expression denoising: increase the resolution of your scRNAseq data\n  - cell embedding: generate a low-dimensional representation of your dataset\n  - label prediction: predict the cell type, disease, sequencer, sex, and\n    ethnicity of your cells\n  - gene network inference: generate a gene network from any cell or cell\n    cluster in your scRNAseq dataset\n\nThis method uses the zero-shot ability of scPRINT for cell type prediction.\nAs some predicted labels are likely to be different to those in the reference\ndataset, we use a combination of exact string matching and iterative linear sum\nassignment to generate a mapping between them using the training data.\n",
   "test_resources" : [
     {
       "type" : "python_script",
@@ -3201,11 +3201,11 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "midtime",
+          "hightime",
           "highmem",
           "midcpu",
           "gpu",
-          "midsharedmem"
+          "highsharedmem"
         ],
         "tag" : "$id"
       },
@@ -3287,7 +3287,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.0",
-    "git_commit" : "b922d8db85e11cc822442fb7f028e2ead1b52060",
+    "git_commit" : "f52ca0a9c28a6dc72520871de56ed3102c87c840",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3989,11 +3989,11 @@ meta["defaults"] = [
     "tag" : "build_main"
   },
   "label" : [
-    "midtime",
+    "hightime",
     "highmem",
     "midcpu",
     "gpu",
-    "midsharedmem"
+    "highsharedmem"
   ],
   "tag" : "$id"
 }'''),
