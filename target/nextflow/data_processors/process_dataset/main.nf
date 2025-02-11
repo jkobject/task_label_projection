@@ -3424,7 +3424,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/data_processors/process_dataset",
     "viash_version" : "0.9.0",
-    "git_commit" : "11c527f36eab5fde9697bd9e43b40d44e708bda4",
+    "git_commit" : "1d592b5795139b3cbc3d79cdc9dc6ae220a69b9f",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3491,6 +3491,26 @@ meta = [
         "info" : {
           "github" : "rcannood",
           "orcid" : "0000-0003-3641-729X"
+        }
+      },
+      {
+        "name" : "Luke Zappia",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "lazappi",
+          "orcid" : "0000-0001-7744-8565"
+        }
+      },
+      {
+        "name" : "Sai Nirmayi Yasa",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "sainirmayi",
+          "orcid" : "0009-0003-6319-9803"
         }
       }
     ],
