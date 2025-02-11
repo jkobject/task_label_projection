@@ -3369,7 +3369,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0",
-    "git_commit" : "f52ca0a9c28a6dc72520871de56ed3102c87c840",
+    "git_commit" : "11c527f36eab5fde9697bd9e43b40d44e708bda4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
