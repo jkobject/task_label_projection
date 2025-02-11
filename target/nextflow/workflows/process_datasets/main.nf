@@ -3369,7 +3369,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/process_datasets",
     "viash_version" : "0.9.0",
-    "git_commit" : "f52ca0a9c28a6dc72520871de56ed3102c87c840",
+    "git_commit" : "1d592b5795139b3cbc3d79cdc9dc6ae220a69b9f",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3436,6 +3436,26 @@ meta = [
         "info" : {
           "github" : "rcannood",
           "orcid" : "0000-0003-3641-729X"
+        }
+      },
+      {
+        "name" : "Luke Zappia",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "lazappi",
+          "orcid" : "0000-0001-7744-8565"
+        }
+      },
+      {
+        "name" : "Sai Nirmayi Yasa",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "sainirmayi",
+          "orcid" : "0009-0003-6319-9803"
         }
       }
     ],
