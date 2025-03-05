@@ -38,7 +38,7 @@ info:
     scprint_large:
       model_name: "large"
     scprint_medium:
-      model_name: "medium"
+      model_name: "v2-medium"
     scprint_small:
       model_name: "small"
   test_setup:
@@ -51,8 +51,8 @@ arguments:
   - name: "--model_name"
     type: "string"
     description: Which model to use. Not used if --model is provided.
-    choices: ["large", "medium", "small"]
-    default: "large"
+    choices: ["large", "v2-medium", "small"]
+    default: "v2-medium"
   - name: --model
     type: file
     description: Path to the scPRINT model.
@@ -60,11 +60,11 @@ arguments:
   - name: --batch_size
     type: integer
     description: The size of the batches to be used in the DataLoader.
-    default: 64
+    default: 32
   - name: --max_len
     type: integer
     description: The maximum length of the gene sequence.
-    default: 2000
+    default: 4000
 
 resources:
   - type: python_script
@@ -77,17 +77,14 @@ engines:
     setup:
       - type: python
         pip:
-          - huggingface_hub
-          # Can be unpinned after https://github.com/cantinilab/scPRINT/issues/14 is resolved
-          - scprint==1.6.2
-          - scdataloader==1.6.4
+          - scprint
       - type: docker
         run: |
           lamin init --storage ./main --name main --schema bionty
-      - type: python
-        script: import bionty as bt; bt.core.sync_all_sources_to_latest()
       - type: docker
         run: lamin load anonymous/main
+      - type: python
+        script: import bionty as bt; bt.core.sync_all_sources_to_latest()
       - type: python
         script: from scdataloader.utils import populate_my_ontology; populate_my_ontology()
 

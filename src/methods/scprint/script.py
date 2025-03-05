@@ -14,7 +14,7 @@ par = {
     "input_train": "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad",
     "input_test": "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad",
     "output": "output.h5ad",
-    "model_name": "large",
+    "model_name": "v2-medium",
     "model": None,
 }
 meta = {"name": "scprint"}
@@ -29,8 +29,8 @@ print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 print("\n>>> Reading input data...", flush=True)
-input_train = ad.read_h5ad(par['input_train'])
-input_test = ad.read_h5ad(par['input_test'])
+input_train = ad.read_h5ad(par["input_train"])
+input_test = ad.read_h5ad(par["input_test"])
 input_test_uns = input_test.uns.copy()
 
 print("\n>>> Preprocessing input data...", flush=True)
@@ -44,7 +44,7 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
 else:
     exit_non_applicable(
         f"scPRINT can only be used with human data "
-        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
+        f'(dataset_organism == "{input_train.uns["dataset_organism"]}")'
     )
 
 # move data
@@ -59,7 +59,9 @@ del input_test.layers["counts"]
 # applying preprocessor
 preprocessor = Preprocessor(
     # Lower this threshold for test datasets
-    min_valid_genes_id=min(0.9 * input_train.n_vars, 10000), # 90% of features up to 10,000
+    min_valid_genes_id=min(
+        0.9 * input_train.n_vars, 10000
+    ),  # 90% of features up to 10,000
     # Turn off cell filtering to return results for all cells
     filter_cell_by_counts=False,
     min_nnz_genes=False,
@@ -79,11 +81,22 @@ if model_checkpoint_file is None:
     )
 
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
-model = scprint.scPrint.load_from_checkpoint(
-    model_checkpoint_file,
-    transformer="normal",  # Don't use this for GPUs with flashattention
-    precpt_gene_emb=None,
-)
+
+m = torch.load(model_checkpoint_file, map_location=torch.device("cpu"))
+if "label_counts" in m["hyper_parameters"]:
+    model = scPrint.load_from_checkpoint(
+        model_checkpoint_file,
+        transformer=transformer,  # Don't use this for GPUs with flashattention
+        precpt_gene_emb=None,
+        classes=m["hyper_parameters"]["label_counts"],
+    )
+else:
+    model = scPrint.load_from_checkpoint(
+        model_checkpoint_file,
+        transformer=transformer,  # Don't use this for GPUs with flashattention
+        precpt_gene_emb=None,
+    )
+del m
 
 print("\n>>> Embedding train data...", flush=True)
 if torch.cuda.is_available():
@@ -110,7 +123,7 @@ embedder = scprint.tasks.Embedder(
     dtype=dtype,
     pred_embedding=["cell_type_ontology_term_id"],
     keep_all_cls_pred=False,
-    output_expression="none"
+    output_expression="none",
 )
 embedded, _ = embedder(model, input_train, cache=False)
 
@@ -156,7 +169,7 @@ for label, pred in combos:
 # we remove any that have been matched and repeat until all predicted labels are
 # matched to a dataset label.
 print("\n---- INFERRED MATCHES ----", flush=True)
-print(f"{'PREDICTED' : <40}{'LABEL' : <40}", flush=True)
+print(f"{'PREDICTED': <40}{'LABEL': <40}", flush=True)
 while not all(pred in matches for pred in predicted_levels):
     # Get predicted labels that have not yet been matched
     not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
@@ -171,11 +184,11 @@ while not all(pred in matches for pred in predicted_levels):
         label_level = label_levels[label]
         matches[predicted_level] = label_level
 
-        if (len(predicted_level) > 39):
-            predicted_level = predicted_level[:36] + '...'
+        if len(predicted_level) > 39:
+            predicted_level = predicted_level[:36] + "..."
 
-        if (len(label_level) > 39):
-            label_level = label_level[:36] + '...'
+        if len(label_level) > 39:
+            label_level = label_level[:36] + "..."
 
         print(f"{predicted_level: <40}{label_level: <40}", flush=True)
 
@@ -193,22 +206,24 @@ embedder = scprint.tasks.Embedder(
     dtype=dtype,
     pred_embedding=["cell_type_ontology_term_id"],
     keep_all_cls_pred=False,
-    output_expression="none"
+    output_expression="none",
 )
 embedded_test, _ = embedder(model, input_test, cache=False)
 
 print("\n>>> Converting predictions to labels...", flush=True)
-input_test.obs["label_pred"] = embedded_test.obs["conv_pred_cell_type_ontology_term_id"].values
+input_test.obs["label_pred"] = embedded_test.obs[
+    "conv_pred_cell_type_ontology_term_id"
+].values
 input_test.obs = input_test.obs.replace(dict(label_pred=matches))
 
 print("\n>>> Storing output...", flush=True)
 output = ad.AnnData(
-  obs=input_test.obs[["label_pred"]],
-  uns={
-    'method_id': meta['name'],
-    'dataset_id': input_test_uns['dataset_id'],
-    'normalization_id': input_test_uns['normalization_id']
-  }
+    obs=input_test.obs[["label_pred"]],
+    uns={
+        "method_id": meta["name"],
+        "dataset_id": input_test_uns["dataset_id"],
+        "normalization_id": input_test_uns["normalization_id"],
+    },
 )
 
 print("\n>>> Writing output AnnData to file...", flush=True)
