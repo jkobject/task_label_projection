@@ -44,7 +44,7 @@ info:
   test_setup:
     run:
       model_name: small
-      batch_size: 64
+      batch_size: 16
       max_len: 100
 
 arguments:
@@ -77,7 +77,8 @@ engines:
     setup:
       - type: python
         pip:
-          - scprint
+          - scprint==2.2.1
+          - gseapy==1.1.2
       - type: docker
         run: |
           lamin init --storage ./main --name main --schema bionty
@@ -90,6 +91,7 @@ engines:
 
 runners:
   - type: executable
+    docker_run_args: --gpus all
   - type: nextflow
     directives:
       label: [hightime, highmem, midcpu, gpu, highsharedmem]

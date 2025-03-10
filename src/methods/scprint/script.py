@@ -6,6 +6,7 @@ import torch
 import os
 import sys
 import numpy as np
+from scprint import scPrint
 from scipy.spatial import distance
 from scipy.optimize import linear_sum_assignment
 
@@ -80,6 +81,17 @@ if model_checkpoint_file is None:
         repo_id="jkobject/scPRINT", filename=f"{par['model_name']}.ckpt"
     )
 
+if torch.cuda.is_available():
+    print("CUDA is available, using GPU", flush=True)
+    precision = "16"
+    dtype = torch.float16
+    transformer = "flash"
+else:
+    print("CUDA is not available, using CPU", flush=True)
+    precision = "32"
+    dtype = torch.float32
+    transformer = "normal"
+
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
 
 m = torch.load(model_checkpoint_file, map_location=torch.device("cpu"))
@@ -98,25 +110,15 @@ else:
     )
 del m
 
-print("\n>>> Embedding train data...", flush=True)
-if torch.cuda.is_available():
-    print("CUDA is available, using GPU", flush=True)
-    precision = "16"
-    dtype = torch.float16
-else:
-    print("CUDA is not available, using CPU", flush=True)
-    precision = "32"
-    dtype = torch.float32
+n_cores = max(16, len(os.sched_getaffinity(0)))
 
-n_cores_available = len(os.sched_getaffinity(0))
-
-print(f"Using {n_cores_available} worker cores")
+print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(
     batch_size=par["batch_size"],
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,
@@ -170,27 +172,33 @@ for label, pred in combos:
 # matched to a dataset label.
 print("\n---- INFERRED MATCHES ----", flush=True)
 print(f"{'PREDICTED': <40}{'LABEL': <40}", flush=True)
-while not all(pred in matches for pred in predicted_levels):
-    # Get predicted labels that have not yet been matched
-    not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
-    not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
+for i, pred in enumerate(predicted_levels):
+    matches[pred] = label_levels[np.argmin(jaccard[:, i])]
+    print(f"{pred: <40}{matches[pred]: <40}", flush=True)
 
-    # Get assignments for currently unmatched predicted labels
-    assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
+# previous version
 
-    # Store any new matches
-    for label, pred in zip(assignments[0], assignments[1]):
-        predicted_level = not_matched[pred]
-        label_level = label_levels[label]
-        matches[predicted_level] = label_level
-
-        if len(predicted_level) > 39:
-            predicted_level = predicted_level[:36] + "..."
-
-        if len(label_level) > 39:
-            label_level = label_level[:36] + "..."
-
-        print(f"{predicted_level: <40}{label_level: <40}", flush=True)
+# while not all(pred in matches for pred in predicted_levels):
+#     # Get predicted labels that have not yet been matched
+#    not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
+#    not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
+#
+#    # Get assignments for currently unmatched predicted labels
+#    assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
+#
+#    # Store any new matches
+#    for label, pred in zip(assignments[0], assignments[1]):
+#        predicted_level = not_matched[pred]
+#        label_level = label_levels[label]
+#        matches[predicted_level] = label_level
+#
+#        if len(predicted_level) > 39:
+#            predicted_level = predicted_level[:36] + "..."
+#
+#        if len(label_level) > 39:
+#            label_level = label_level[:36] + "..."
+#
+#        print(f"{predicted_level: <40}{label_level: <40}", flush=True)
 
 
 print("\n>>> Embedding test data...", flush=True)
@@ -199,7 +207,7 @@ embedder = scprint.tasks.Embedder(
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,
