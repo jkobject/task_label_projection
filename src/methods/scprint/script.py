@@ -17,6 +17,7 @@ par = {
     "output": "output.h5ad",
     "model_name": "v2-medium",
     "model": None,
+    "infer_matches": "direct",
 }
 meta = {"name": "scprint"}
 ## VIASH END
@@ -85,7 +86,7 @@ if torch.cuda.is_available():
     print("CUDA is available, using GPU", flush=True)
     precision = "16"
     dtype = torch.float16
-    transformer="flash"
+    transformer = "flash"
 else:
     print("CUDA is not available, using CPU", flush=True)
     precision = "32"
@@ -170,36 +171,41 @@ for label, pred in combos:
 # the Jaccard distances. This algorithm may not match all predicted labels so
 # we remove any that have been matched and repeat until all predicted labels are
 # matched to a dataset label.
+
 print("\n---- INFERRED MATCHES ----", flush=True)
 print(f"{'PREDICTED': <40}{'LABEL': <40}", flush=True)
-for i, pred in enumerate(predicted_levels):
-    matches[pred] = label_levels[np.argmin(jaccard[:, i])]
-    print(f"{pred: <40}{matches[pred]: <40}", flush=True)
 
-# previous version
 
-# while not all(pred in matches for pred in predicted_levels):
-#     # Get predicted labels that have not yet been matched
-#    not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
-#    not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
-#
-#    # Get assignments for currently unmatched predicted labels
-#    assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
-#
-#    # Store any new matches
-#    for label, pred in zip(assignments[0], assignments[1]):
-#        predicted_level = not_matched[pred]
-#        label_level = label_levels[label]
-#        matches[predicted_level] = label_level
-#
-#        if len(predicted_level) > 39:
-#            predicted_level = predicted_level[:36] + "..."
-#
-#        if len(label_level) > 39:
-#            label_level = label_level[:36] + "..."
-#
-#        print(f"{predicted_level: <40}{label_level: <40}", flush=True)
+if par["infer_matches"] == "direct":
+    # other version
+    for i, pred in enumerate(predicted_levels):
+        matches[pred] = label_levels[np.argmin(jaccard[:, i])]
+        print(f"{pred: <40}{matches[pred]: <40}", flush=True)
 
+elif par["infer_matches"] == "linear_sum_assignment":
+    # previous version
+    while not all(pred in matches for pred in predicted_levels):
+        # Get predicted labels that have not yet been matched
+        not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
+        not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
+        # Get assignments for currently unmatched predicted labels
+        assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
+        # Store any new matches
+        for label, pred in zip(assignments[0], assignments[1]):
+            predicted_level = not_matched[pred]
+            label_level = label_levels[label]
+            matches[predicted_level] = label_level
+            if len(predicted_level) > 39:
+                predicted_level = predicted_level[:36] + "..."
+            if len(label_level) > 39:
+                label_level = label_level[:36] + "..."
+            print(f"{predicted_level: <40}{label_level: <40}", flush=True)
+else:
+    raise ValueError(f"Invalid value for infer_matches: {par['infer_matches']}")
+print("\n---- UNMATCHED TRUE LABELS ----", flush=True)
+for l in lower_label_levels:
+    if l not in [m.lower() for m in matches.values()]:
+        print(l)
 
 print("\n>>> Embedding test data...", flush=True)
 embedder = scprint.tasks.Embedder(
