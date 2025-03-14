@@ -17,7 +17,7 @@ par = {
     "output": "output.h5ad",
     "model_name": "v2-medium",
     "model": None,
-    "infer_matches": "direct",
+    "infer_matches": "linear_sum_assignment",
 }
 meta = {"name": "scprint"}
 ## VIASH END

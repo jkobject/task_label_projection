@@ -71,7 +71,7 @@ arguments:
       The method to use to infer the matches between the predicted and
       true labels.
     choices: ["direct", "linear_sum_assignment"]
-    default: "direct"
+    default: "linear_sum_assignment"
 
 resources:
   - type: python_script
@@ -86,7 +86,7 @@ engines:
         pip:
           - git+https://github.com/cantinilab/scPRINT.git@d8cc270b099c8d5dacf6913acc26f2b696685b2b
           - gseapy==1.1.2
-          - git+https://github.com/jkobject/scDataLoader.git@0f9e1858c8a4c6b0239ceb00e762d52032d745e7
+          - git+https://github.com/jkobject/scDataLoader.git@c67c24a2e5c62399912be39169aae76e29e108aa
       - type: docker
         run: |
           lamin init --storage ./main --name main --schema bionty
