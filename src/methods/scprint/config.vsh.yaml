@@ -99,7 +99,6 @@ engines:
 
 runners:
   - type: executable
-    docker_run_args: --gpus all
   - type: nextflow
     directives:
       label: [hightime, highmem, midcpu, gpu, highsharedmem]
