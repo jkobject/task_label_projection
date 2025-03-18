@@ -1,14 +1,15 @@
-import anndata as ad
-from scdataloader import Preprocessor
-from huggingface_hub import hf_hub_download
-import scprint
-import torch
 import os
 import sys
+
+import anndata as ad
 import numpy as np
-from scprint import scPrint
-from scipy.spatial import distance
+import scprint
+import torch
+from huggingface_hub import hf_hub_download
+from scdataloader import Preprocessor
 from scipy.optimize import linear_sum_assignment
+from scipy.spatial import distance
+from scprint import scPrint
 
 ## VIASH START
 par = {
@@ -146,7 +147,7 @@ predicted_levels = sorted(list(predicted.cat.categories))
 
 # If there are any predicted labels that exactly match a dataset label we use them directly
 matches = {}
-lower_label_levels = [l.lower() for l in label_levels]
+lower_label_levels = [lbl.lower() for lbl in label_levels]
 print("---- EXACT MATCHES ----", flush=True)
 for pred in predicted_levels:
     if pred.lower() in lower_label_levels:
@@ -161,7 +162,7 @@ jaccard = np.zeros((len(label_levels), len(predicted_levels)))
 combos = [(label, pred) for label in label_levels for pred in predicted_levels]
 
 for label, pred in combos:
-    labels_bin = [1 if l == label else 0 for l in label_values]
+    labels_bin = [1 if lbl == label else 0 for lbl in label_values]
     predicted_bin = [1 if p == pred else 0 for p in predicted_values]
     label_idx = label_levels.index(label)
     predicted_idx = predicted_levels.index(pred)
@@ -203,9 +204,9 @@ elif par["infer_matches"] == "linear_sum_assignment":
 else:
     raise ValueError(f"Invalid value for infer_matches: {par['infer_matches']}")
 print("\n---- UNMATCHED TRUE LABELS ----", flush=True)
-for l in lower_label_levels:
-    if l not in [m.lower() for m in matches.values()]:
-        print(l)
+for lbl in lower_label_levels:
+    if lbl not in [m.lower() for m in matches.values()]:
+        print(lbl, flush=True)
 
 print("\n>>> Embedding test data...", flush=True)
 embedder = scprint.tasks.Embedder(
