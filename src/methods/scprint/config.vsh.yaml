@@ -43,7 +43,7 @@ info:
       model_name: "small-v1"
   test_setup:
     run:
-      model_name: small
+      model_name: small-v1
       batch_size: 16
       max_len: 100
 
